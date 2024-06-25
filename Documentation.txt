@@ -1,0 +1,2561 @@
+1.create folder for e-com-website
+
+2.check python version (python --version)
+
+3.pip install pipenv (install virtual environent)
+
+4.activate virtual environment (pipenv shell)
+
+5.pip install django
+
+6.create project (django-admin startproject Ecomm_Project .)
+
+7.view-->command palette(ctr+shit+p) --> select python interprter --. ecommerce virtual environment
+
+8.run the project( py manage.py runserver)
+
+9.connecting MySQL database with django
+    --pip install mysqlclient
+    --MySQL workbench --> create databae(CREATE DATABASE mydb;)
+    --settings.py --> DATABASES = {
+                        'default': {
+                        'ENGINE': 'django.db.backends.mysql',
+                        'NAME': 'mydb',
+                        'USER': 'root',
+                        'PASSWORD': 'Tamil@123',
+                        'HOST':'localhost',
+                        'PORT':'3306',
+                        }
+                        }
+
+10.run the project(py manage.py runserver)
+
+11.create application (py manage.py startapp shop)
+
+12.mention 'shop' in settings.py--> INSTALLED_APPS
+        -- INSTALLED_APPS = [
+            'django.contrib.admin',
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.messages',
+            'django.contrib.staticfiles',
+            'shop',
+        ]
+
+13.create urls.py file on shop folder, and include it on project level urls.py
+        --project urls.py 
+        from django.contrib import admin
+        from django.urls import path,include
+
+        urlpatterns = [
+            path('admin/', admin.site.urls),
+            path('', include('shop.urls')),
+        ]
+        
+        --shop urls.py
+        from django.contrib import admin
+        from django.urls import path
+
+        urlpatterns = [
+            path(),
+        ]
+
+14.Create 'templates' folder on shop folder. again create newfolder on templates and name it 'shop'.next create index.html 
+
+15.create view for home page.
+
+     --open views.py
+     from django.shortcuts import render
+
+    # Create your views here.
+    def home(request):
+        return render(request,'shop/index.html')
+
+    -- open urls.py (shop folder)
+    from django.contrib import admin
+    from django.urls import path
+    from shop import views 
+
+    urlpatterns = [
+        path('home/',views.home, name ='home'),
+    ]
+
+    -- index.html file,
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+    </head>
+    <body>
+        <h1>Home Page</h1>
+    </body>
+    </html>
+
+16.py manage.py runserver
+
+17. create another view 'register' and register.html also for rendering.
+
+    --views.py
+
+    from django.shortcuts import render
+
+    # Create your views here.
+    def home(request):
+        return render(request,'shop/index.html')
+
+    def register(request):
+        return render(request, 'shop/register.html')
+
+
+    -- urls.py (shop folder)
+
+    from django.contrib import admin
+    from django.urls import path
+    from shop import views 
+
+    urlpatterns = [
+        path('home/',views.home, name ='home'),
+        path('register/',views.register, name ='register'),
+    ]
+
+    -- register.html file
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register</title>
+    </head>
+    <body>
+        <h1>Registration page</h1>
+    </body>
+    </html>
+
+18.google --> BOOTSTRAP 5 -->Introduction · Bootstrap v5.0 --> docs --> copy templates (hello world template)
+
+19. create 'layouts' folder on templates/shop folder. inside layouts, create 'main.html'
+
+        -- main.html
+
+            <!doctype html>
+        <html lang="en">
+        <head>
+            <!-- Required meta tags -->
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <!-- Bootstrap CSS -->
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+            <title>BuySpot | Online Shopping</title>
+        </head>
+        <body>
+
+            {% block content%}
+            {% endblock content%}
+
+            {% block scripts %}
+            {% endblock scripts %}
+
+            <!-- Optional JavaScript; choose one of the two! -->
+
+            <!-- Option 1: Bootstrap Bundle with Popper -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+            <!-- Option 2: Separate Popper and Bootstrap JS -->
+            <!--
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+            -->
+        </body>
+        </html>
+
+20. extend block content from main.html to all others, such as index.html, register.html with the help of {% extends 'shop/layouts/main.html' %}
+
+    -- index.html file,
+
+    {% extends 'shop/layouts/main.html' %}
+
+    {% block content%}
+    <h1>Home Page</h1>
+    {% endblock content%}
+
+    -- register.html file,
+
+    {% extends 'shop/layouts/main.html' %}
+
+    {% block content%}
+    <h1>Register Page</h1>
+    {% endblock content%}
+
+21. To change <title> of index and register,
+
+        -- index.html,
+        {% extends 'shop/layouts/main.html' %}
+
+        {% block title %}
+        BuySpot | Online Shopping
+        {% endblock title %}
+
+        {% block content%}
+        <h1>Home Page</h1>
+        {% endblock content%}
+
+
+        --register.html
+        {% extends 'shop/layouts/main.html' %}
+
+        {% block title %}
+        Register | BuySpot
+        {% endblock title %}
+
+        {% block content%}
+        <h1>Home Page</h1>
+        {% endblock content%}
+
+
+#29:00 minutes completed.......
+
+22.Creating Navigation bar Using boostrap 5
+   -- create folder 'inc' (include) on templates/shop .
+   -- create 'navbar.html' in inc folder
+   -- bootstrap 5 --> docs --> navbar --> copy templates --> paste on navbar.html
+
+   --navbar.html file,
+
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">BuySpot</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pricing</a>
+        </li>
+        
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+23. connect this navbar.html with main.html using {% include 'shop/inc/navbar.html' %}
+
+     --main.html file,
+
+        <!doctype html>
+    <html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+        <title>
+
+            {% block title %}
+            {% endblock title %}
+
+        </title>
+    </head>
+    <body>
+        {% include 'shop/inc/navbar.html' %}
+
+        {% block content%}
+        {% endblock content%}
+
+        {% block scripts %}
+        {% endblock scripts %}
+
+        <!-- Optional JavaScript; choose one of the two! -->
+
+        <!-- Option 1: Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+        <!-- Option 2: Separate Popper and Bootstrap JS -->
+        <!--
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+        -->
+    </body>
+    </html>
+
+24.by converting navbar div tag from 'container-fluid' (<div class="container-fluid">)
+ to 'container' (<div class="container">) , the navbar <nav> tag moves to center. 
+
+    -- navbar.html file,
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="#">BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+ 25.To move <ul> tags right side from left.
+   --  <ul class="navbar-nav ">  to <ul class="navbar-nav ms-auto"> 
+
+   -- navbar.html file,
+
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="#">BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  25. To make navbar 'Dark', and top fixed,
+        -- convert <nav class="navbar navbar-expand-lg navbar-light bg-light"> to <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        navbar.html file,
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  26. put index.html content on <div></div> tag
+    -- index.html file,
+    {% extends 'shop/layouts/main.html' %}
+
+    {% block title %}
+    BuySpot | Online Shopping
+    {% endblock title %}
+
+    {% block content%}
+    <div class="container" style="margin-top: 70px;">
+        <div class="row">
+            <div class="col-12"><h1>Home Page</h1></div>
+
+    
+        
+        </div>
+    </div>
+    {% endblock content%}
+
+    
+27.put register.html content on <div></div> tag
+    -- register.html file,
+
+    {% extends 'shop/layouts/main.html' %}
+
+    {% block title %}
+    Register | BuySpot
+    {% endblock title %}
+
+    {% block content%}
+    <div class="container" style="margin-top: 70px;"><h1>Register page</h1></div>
+
+    {% endblock content%}
+
+
+28.creating folder to store media files such as images, audios...
+      --Create 'static' folder on E commerce website(outside of project and app folders) and map it on settings.py
+      -- STATIC_URL = 'static/'
+         MEDIA_URL = '/images/'
+         MEDIA_ROOT = 'BASE_DIR/static'
+
+
+29.Create Database Model using shop/models.py file.
+
+      -- models.py
+      from django.db import models
+import datetime
+import os
+
+def getFileName(request,filename):
+    now_time = datetime.datetime.now().strftime("%Y%m%d%H:%M:%S")
+    new_filename = "%s%s"%(now_time,filename)
+    return os.path.join('uploads/',new_filename)
+
+class Category(models.Model):
+    name = models.CharField(max_length=150, blank=False, null=False)
+    image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    description = models.TextField(max_length=150, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+    return self.name
+
+class Product(models.Model):
+    Catagory = models.ForeignKey(Category,on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, blank=False, null=False)
+    vendor = models.CharField(max_length=150, blank=False, null=False)
+    product_image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    original_price = models.FloatField(null=False, blank=False)
+    selling_price = models.FloatField(null=False, blank=False)
+    description = models.TextField(max_length=150, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    Trending = models.BooleanField(default=False, help_text="0-default, 1-Trending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+    return self.name
+
+30. Commands to reflect the data's created on models.py on MySQL Database management system.
+    -- py manage.py makemigrations
+    -- py manage.py migrate
+
+31. check the tables created or not on MySQL Workbench. 
+
+32. create 'superuser' to access django-admin interface.
+    -- py manage.py createsuperuser
+        Username (leave blank to use 'thgan'): admin
+        Email address: admin@gamail.com
+        Password: 1234
+        Password (again): 1234
+        This password is too short. It must contain at least 8 characters.
+        This password is too common.
+        This password is entirely numeric.
+        Bypass password validation and create user anyway? [y/N]: y
+        Superuser created successfully.
+
+33.Register your models created on models.py on admin.py
+
+    from django.contrib import admin
+    from shop.models import *
+      
+    admin.site.register(Category)
+    admin.site.register(Product)
+
+34. Create category and products in djangoadmin page.
+example : category - Mobiles
+          product - realme 5 pro
+          category - Fasion
+          product - 
+          category - Electronics
+          product - Television
+          category - Grocery
+          product - 
+          category - Home
+          product - 
+          note: add more products . then only webpage looks good. more than 90 products.
+
+35.changing background theme of django-admin page
+   -- pip install django-jazzmin
+   Successfully installed django-jazzmin-3.0.0
+
+   -- add jazzmin in settings.py, installled apps....
+    INSTALLED_APPS = [
+    'jazzmin',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'shop',
+]
+    -- py manage.py runserver
+
+36.Now, going to display database items on webpage.
+      -- create 'images' folder on static folder.
+      -- download any 6 images from online and place it on static/images folder.
+      -- search 'slider'(carousel) in bootstrap 5. take any carousel as per your wish. (slider-carousel: both are same)
+      -- create new file called 'slider.html' in inc folder. and include it on index.html.(above block content)
+      -- add STATICFILES_DIRS = [BASE_DIR/'static'] on settings.py
+      -- add {%load static%} on top of slider.html before adding images.
+      -- add images like {% static 'images/1.jpg' %},{% static 'images/2.jpg' %},{% static 'images/3.jpg' %},{% static 'images/4.jpg' %}
+      -- add alt="Slide 1", alt="Slide 2", alt="Slide 3", alt="Slide 4"
+      -- note : "by-default slider 1 will be on active"
+      
+      -- slider.html,
+
+
+      {% load static %}
+
+          <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 3"></button>
+              </div>
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="{% static 'images/1.jpg' %}" class="d-block w-100" alt="Slide 1">
+                </div>
+                <div class="carousel-item">
+                  <img src="{% static 'images/2.jpeg' %}" class="d-block w-100" alt="Slide 2">
+                </div>
+                <div class="carousel-item">
+                  <img src="{% static 'images/3.jpeg' %}" class="d-block w-100" alt="Slide 3">
+                </div>
+                <div class="carousel-item">
+                  <img src="{% static 'images/4.png' %}" class="d-block w-100" alt="Slide 4">
+                </div>
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+
+37. next, load slider.html on index.html page using {% include %}. ( within {% block content%} )
+    -- index.html,
+          {% extends 'shop/layouts/main.html' %}
+
+      {% block title %}
+      BuySpot | Online Shopping
+      {% endblock title %}
+
+      {% block content%}
+      {% include 'shop/inc/slider.html' %}    # included here.....
+      <div class="container" style="margin-top: 70px;">
+          <div class="row">
+              <div class="col-12"><h1>Home Page</h1></div> 
+          </div>
+      </div>
+      {% endblock content%}
+
+38. py manage.py runserver
+
+#1:10:00 completed........
+
+39. Reduce the size of slider.(image size using css)
+    -- create new folder on static folder and name it as 'css'.
+    -- create 'style.css' file on css folder.
+    -- style.css file,
+    .carousel-item img{
+    object-fit: cover;      /*Ensures the content fills the container, cropping to maintain aspect ratio.*/
+    object-position: top;   /*Aligns the content to the top of the container.*/
+    height: 60vh;           /*Sets the container's height to 60% of the viewport height.*/
+    overflow: hidden;       /*Hides content that overflows the container's bounds.*/
+    }
+
+40.load style.css file on main.html file.
+    -- put {% load static %} on top of main.html file
+    -- link rel = "stylesheet" href= "{% static 'css/style.css %}
+    -- main.html file,
+
+    {% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>
+
+        {% block title %}
+        {% endblock title %}
+
+    </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    {% include 'shop/inc/navbar.html' %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
+
+41. notes:
+    -- Just check whether our style.css linked or not by pressing ctrl+u.
+    -- you can see the source code for our webpage.
+    -- we can change all .html file styles by correcting style.css file.
+    -- because style.css file loaded on main.html file.
+    -- we know that main,html is parent file for all other .html files , like index.html and register.html.
+    -- so, if we do changes on style.css . it reflects to index.html and register.html.
+
+42. Changing font.
+    -- go to font.google.com
+    -- select noto sans font 300
+    -- click import and copy the <style> </style>
+    -- paste it on style.css (@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');)
+    -- set text decoration : none on <a> tag , and font sizw to 14px in <html> tag, on <body> font-family to 'noto sans : sans-seriff.
+    -- style.css file,
+    
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+html{
+    font-size: 14px;
+}
+body{
+    font-family: 'Noto sans',sans-serif;
+}
+a{
+    text-decoration: none;
+}
+
+
+
+.carousel-item img{
+    object-fit: cover;      /*Ensures the content fills the container, cropping to maintain aspect ratio.*/
+    object-position: top;   /*Aligns the content to the top of the container.*/
+    height: 60vh;           /*Sets the container's height to 60% of the viewport height.*/
+    overflow: hidden;       /*Hides content that overflows the container's bounds.*/
+}  
+
+43. --now,  refresh and see the text size and font changed perfectly.....
+    --so if we change something on style.css, it reflects on webpage....
+
+44.Now adding, url links to navbar lists<li>(such as home,pricing,Features)
+    -- go to navbar.html and add {% url 'home' %} in href. (<a class="nav-link" aria-current="page" href="{% url 'home' %}">Home</a>)
+    -- go to navbar.html and add {% url 'register' %} in href.(<a class="nav-link" href="{% url 'register' %}">Register</a>)
+    --{% url 'home' %} paste it on brand <a> tag.(<a class="navbar-brand" href="{% url 'home' %}">BuySpot</a>)
+    -- navbar.html,
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+45. change endpoint "home" to ' ' on urls.py file
+
+    -- urls.py file,
+
+    from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register/',views.register, name ='register'),
+    
+]
+
+
+46. Now, displaying category's on webpage
+    -- Goto navbar.html, change pricing <li> tag to Collections.
+    -- add {% url 'collections' %} to href.
+    -- navbar.html file,
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'collections' %}">Collections</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+47. write one view to collections on views.py
+      -- views.py
+from django.shortcuts import render
+
+# Create your views here.
+def home(request):
+    return render(request,'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    return render(request, 'shop/collections.html')
+
+
+48.create collections.html file shop/templates/shop folder.   
+    -- copy the content in register.html and paste it on collections.html
+    -- collections.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<div class="container" style="margin-top: 70px;"><h1>Collections page</h1></div>
+
+{% endblock content%}
+
+49. set the urls for collections.html file on urls.py file.
+from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register/',views.register, name ='register'),
+    path('collections/',views.collections, name ='collections'),
+    
+]
+
+
+50.Now im going to display category on webpage through collections function in views.py.
+    -- open views.py py and import models.(2 models . 1- Category, 2- product) like this (from shop.models import * )
+    -- create category variable on collections funtion (template tag variable)
+    -- category = Category.objects.filter(status = 0) # we know that, 0-show, and 1- hidden.
+    -- template tag variable passed via dictionary formate only.(return render(request, 'shop/collections.html', {'category':category} ))
+    -- views.py file,
+
+from django.shortcuts import render
+from shop.models import * 
+
+# Create your views here.
+def home(request):
+    return render(request,'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status = 0)
+    return render(request, 'shop/collections.html', {'category':category} )
+
+51.pass the 'key' given in template tag variable on collections.html.
+displays everything on objects
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<div class="container" style="margin-top: 70px;"><h1>Collections page</h1>
+{{category}}
+</div>
+
+
+{% endblock content%}
+
+52.py manage.py runserver
+displays everything on objects. 
+<QuerySet [<Category: Category object (1)>, <Category: Category object (2)>, <Category: Category object (3)>, <Category: Category object (4)>]>
+we dont want this.
+
+53. remove everything available on collections.html {% block content%} except style="margin-top: 70px;"
+
+-- collections.py file, (not explained. tutor just pasted this bootstrap code...)
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class ='py-5 text-center container' style="margin-top: 70px;">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Bestsellers</h1>
+            <p class="lead text-muted">Our most popular products based on sales.</p>
+            <p>
+                <a href="#" class="btn btn-primary my-2">Already User</a>
+                <a href="#" class="btn btn-secondary my-2">Register</a>
+            </p>
+
+        </div>
+    </div>
+</section> 
+
+
+{% endblock content%}
+
+
+54. category tab creation using boostrap5 in collections.html,
+
+      -- open section tag set bg-light, py-4, my-5. padding y axis(py), margin y axis(my)
+      -- open div tag. class name container
+      -- again open one div tag with class name row.
+      -- again open one div tag with class name col-12.
+      -- within that col-12 , open one h4 tag with class "mb-3". and name Categories.
+      -- create hr tag (<hr style="border-color: b8bfc2;">)
+      save it.
+
+      --collections.html file,
+
+      {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class ='py-5 text-center container' style="margin-top: 70px;">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Bestsellers</h1>
+            <p class="lead text-muted">Our most popular products based on sales.</p>
+            <p>
+                <a href="#" class="btn btn-primary my-2">Already User</a>
+                <a href="#" class="btn btn-secondary my-2">Register</a>
+            </p>
+
+        </div>
+    </div>
+</section> 
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Categories</h4>
+                <hr style="border-color: b8bfc2;">
+
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+    
+
+55. Creating 'card' for each category.
+    --  create one div tag under the hr tag. and give a class name as 'col' set md-4 and lg-3.
+    -- create another div with class name 'card' and my-3.
+    -- add one img tag inside that card div with class card-image-top and alt=Catagories.
+    -- create div under img tag with class name of card-body.
+    -- inside that card-body tag, create one h5 tag and <p> tag and <a> tag
+    -- in h5 tag class name "card-title-primary".and content, Product Name.
+    -- in <p> tag class name "card-text"(description of product). and content, HTML Stand For HyperText Markup Language
+    -- in <a> tag with class name "btn btn-primary btn-sm" and content is View Details.
+    save it.
+
+    -- collections.html file,
+
+    {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class ='py-5 text-center container' style="margin-top: 70px;">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Bestsellers</h1>
+            <p class="lead text-muted">Our most popular products based on sales.</p>
+            <p>
+                <a href="#" class="btn btn-primary my-2">Already User</a>
+                <a href="#" class="btn btn-secondary my-2">Register</a>
+            </p>
+
+        </div>
+    </div>
+</section> 
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Categories</h4>
+                <hr style="border-color: b8bfc2;">
+
+                <div class="col-md-4 col-lg-3">
+                    <div class="card my-3">
+                        <img src="" class='card-image-top' alt="Categories">
+                        <div class="card-body">
+                            <h5 class="card-title-primary">Product Name</h5>
+                            <p class="card-text">HTML Stand For HyperText Markup Language</p>
+                            <a href="" class="btn btn-primary btn-sm">View Details</a>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+
+56. after the above step, images not appeared. just alt=Categories only displayed on webpage.
+    now rectifying it.
+
+    -- go to project urls.py.
+    -- import 'settings' from django.conf and import 'static' from django.conf.urls.static
+    -- add MEDIA_URL and MEDIA_ROOT in urlpatterns variable. (not properly explained by tutor)
+
+    urls.py (project folder),
+
+from django.contrib import admin
+from django.urls import path,include
+
+from django.conf import settings 
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('shop.urls')),
+]
+
+if settings.DEBUG:
+    urlpatterns+=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+57. add for loop just before card div in collections.html.
+    -- put url @ img sr='{{ item.image.url }}'
+    -- replace Product Name by {{item.name}}
+    -- replace HTML Stand For HyperText Markup Language with {{item.description}}
+    save and run the server
+
+    collections.html file,
+
+    {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class ='py-5 text-center container' style="margin-top: 70px;">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Bestsellers</h1>
+            <p class="lead text-muted">Our most popular products based on sales.</p>
+            <p>
+                <a href="#" class="btn btn-primary my-2">Already User</a>
+                <a href="#" class="btn btn-secondary my-2">Register</a>
+            </p>
+
+        </div>
+    </div>
+</section> 
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Categories</h4>
+                <hr style="border-color: b8bfc2;">
+
+                {% for item in category %}
+                
+                <div class="col-md-4 col-lg-3">
+                    <div class="card my-3">
+                        <img src="{{ item.images.url }}" class='card-image-top' alt="Categories">
+                        <div class="card-body">
+                            <h5 class="card-title-primary">{{item.name}}</h5>
+                            <p class="card-text">{{item.description}}</p> 
+                            <a href="" class="btn btn-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+
+58. Categories displayed successfully on webpage. but images not displayed.
+
+59.next,Fetching products from category wise..
+    -- remove 'View Details' button from collections.html
+    -- add <a> tag just before 'card-body' div, and close that <a> tag after 'card-body' </div>
+    -- add "{% url 'collections'item.name%}" @ <a> tag href.
+    -- add url for 'collections' in urls.py file (application folder), like this (path('collections/<str:name>',views.collectionsview, name ='collections'),)
+    -- write view for collectionsview in views.py
+    -- create one folder on templates/shop/new folder. folder name 'Products'.
+    -- create one new file with the name 'index.html' in products folder.
+    -- import 'messages' from django-contrib.
+    no proper explanation from tutor,
+    views.py,
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+
+# Create your views here.
+def home(request):
+    return render(request, 'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0):
+        products = Product.objects.filter(Catagory__name=name)
+        return render(request, 'shop/products/index.html', {'products': products})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+
+
+  -- urls.py (application folder),
+
+
+from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register/',views.register, name ='register'),
+    path('collections/',views.collections, name ='collections'),
+    path('collections/<str:name>',views.collectionsview, name ='collections'),
+    
+]
+
+
+collections.html file,
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Collections | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class ='py-5 text-center container' style="margin-top: 70px;">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Bestsellers</h1>
+            <p class="lead text-muted">Our most popular products based on sales.</p>
+            <p>
+                <a href="#" class="btn btn-primary my-2">Already User</a>
+                <a href="#" class="btn btn-secondary my-2">Register</a>
+            </p>
+
+        </div>
+    </div>
+</section> 
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Categories</h4>
+                <hr style="border-color: b8bfc2;">
+
+                {% for item in category %}
+                
+                <div class="col-md-4 col-lg-3">
+                    <div class="card my-3 py-5">
+                        <img src="{{ item.Image.url }}" class='card-image-top' alt="Categories">
+
+                    <a href=" {% url 'collections' item.name %}" >
+                        <div class="card-body">
+                            <h5 class="card-title-primary">{{item.name}}</h5>
+                            <p class="card-text">{{item.description}}</p>
+                        </div>
+                    </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+    
+
+
+60. copy layout/index.html file content and paste it on products/index.html file.
+    -- remove content available on {% block content%} to {% endblock content%}
+    -- now, expectation is..
+        -- if i select mobile category , it should display all products under that category.for that,
+        -- create one section with class name of "bg-light py-4 my-5"
+        -- create one div with class name of "container"
+        -- create one div with class name of "row"
+        -- create one div with class name of "col=12" 
+        -- create one h4 tag with class name "mb-3" with content "Awsome Product" 
+        -- create hr tag like this (<hr style="border-color: b8bfc2;">)
+        save and run it.
+
+        -- products/index.html file,
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Awsome Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'collections' item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">{{item.description}}</p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+
+
+
+
+61.Now im expecting product name on webpage instead of awsome product text.
+    -- copy the content from collection.html which is containing for loop and paste it under col-2 </div>.
+    -- replace 'products' at the place of category in for loop({% for item in products %})
+    -- add image url like name given in models.py (<img src="{{ item.product_image.url }}" class='card-image-top' alt="Categories">)
+    -- add name , description .
+    -- remove description and add original_price and selling_price over there.
+    -- now selling_price, and original_price displayed on webpage. just add some style to it.
+    --   <span class ='folat-start'>{{item.original_price}}</span> #alligns left side
+         <span class ='folat-end'>{{item.selling_price}}</span> #alligns right side
+    -- remove float values  original_price and selling_price .
+    -- for that, we have to use | stringformat:'d' in both original_price and selling_price.
+        <span class="float-start">{{item.original_price | stringformat:'d'}}</span>
+        <span class="float-end">{{item.selling_price | stringformat:'d'}}</span>
+        now, float values successfully removed.
+    -- add strike over original price. for that add <s></s> tags outside of  original_price.
+        <span class="float-start"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+
+    -- products/index.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Awsome Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'collections' item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+
+    
+62. Adding styles individually for selling_price and original_price.
+    -- put class name old_price to original_price.
+    -- put class name new_price to selling_price.
+    <span class="float-start old_price"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+    <span class="float-end new_price">Rs.{{item.selling_price | stringformat:'d'}}</span>
+    -- Goto static/css/style.css.
+    -- first, adding style for old_price.
+    -- set font-weight: bold; , color: red;
+    -- next, add style for new_price.
+    -- set , font-weight: bold; , background-color: green; , color: white;, padding: 2px; ,border-radius: 5px;
+    -- sttyle not working.... (worked ater one day)
+
+    -- products/index.html file,
+    {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Awsome Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'collections' item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+
+-- style.css file,
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Noto Sans', sans-serif; /* Ensure consistent capitalization */
+}
+
+a {
+    text-decoration: none;
+}
+
+.carousel-item img {
+    object-fit: cover;      /* Ensures the content fills the container, cropping to maintain aspect ratio. */
+    object-position: top;   /* Aligns the content to the top of the container. */
+    height: 60vh;           /* Sets the container's height to 60% of the viewport height. */
+    overflow: hidden;       /* Hides content that overflows the container's bounds. */
+}
+
+.oldprice {
+    font-weight: bold;
+    color: red;
+}
+
+.newprice {
+    font-weight: bold;
+    background-color: green;
+    color: white;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+
+   
+
+
+63. Replace "Awesome products with " Individual category names. such as mobiles, electronics..
+    -- Goto views.py , in collectionsview function, pass {"category":name}  into return render line.
+     return render(request, 'shop/products/index.html', {'products': products, "category":name})
+    -- Replace 'Awesome' by {{category_name}} in products/index.html and similarly in views.py also.
+    <h4 class="mb-3">{{category_name}} Product</h4>
+    return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+
+# Create your views here.
+def home(request):
+    return render(request, 'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+-- products/index.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{category_name}} Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'collections' item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+64. making template more stylish.
+    -- goto font awesome cdn w3schools in google. select first link.
+    -- under fomt awesome Introduction/ basic icons/ copy the link rel.
+    -- next, goto layout/main.html and paste it within the head tag
+    -- main.html file,
+
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>
+
+        {% block title %}
+        {% endblock title %}
+
+    </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    {% include 'shop/inc/navbar.html' %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
+
+65. Creating one 'icon' for my navigation bar.
+    -- goto inc/navbar.html file, add class = 'fa fa-cart-plus inside of <i></i> tags (it's a font awesome class to add icon) in BuySpot a tag.
+    <a class="navbar-brand" href="{% url 'home' %}"> <i class ="fa fa-cart-plus"></i>BuySpot</a>
+    -- above step works when internet is connected.
+    -- now, add icons to Home,Register, and collections silmilar to the Buyspot.
+    -- Home - <i class ="fa fa-home"></i>
+    -- Register -<i class ="fa fa-user"></i>
+    -- Collections - <i class ="fa fa-cubes"></i>
+    -- next, add another <li> with a tag with the name of cart. and add icon using <i class ="fa fa-shopping-Cart"></i>
+                
+    -- inc/navbar.html file,     
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"> <i class ="fa fa-cart-plus"></i>BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}"><i class="fa fa-home"></i>Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}"> <i class="fa fa-user"></i>Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'collections' %}"> <i class="fa fa-cubes"></i>Collections</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"> <i class="fa fa-shopping-cart"></i>Cart</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>     
+
+
+66. create footer for our webpage.
+    -- create 'footer.html' file on inc folder.
+    -- copy the code from source code and paste it on inc/footer file( not explained properly)
+    source : https://www.tutorjoes.in/python_django_blog/index
+    -- inc/footer.html file,
+
+<footer class="text-center text-lg-start bg-dark text-white">
+    <section class="container d-flex justify-content-center justify-content-lg-between p-4">
+      <div class="me-5 d-none d-lg-block">
+        <span>Get connected with us on social networks:</span>
+      </div>
+      <div>
+        <a href="" class="me-4 text-reset"><i class="fa fa-facebook"></i></a>
+        <a href="" class="me-4 text-reset"><i class="fa fa-twitter"></i></a>
+        <a href="" class="me-4 text-reset"><i class="fa fa-google"></i></a>
+        <a href="" class="me-4 text-reset"><i class="fa fa-instagram"></i></a>
+        <a href="" class="me-4 text-reset"><i class="fa fa-linkedin"></i></a>
+        <a href="" class="me-4 text-reset"><i class="fa fa-github"></i></a>
+      </div>
+    </section>
+  
+    <section class="">
+      <div class="container text-center text-md-start mt-5">
+        <div class="row mt-3">
+          <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+            <h6 class="text-uppercase fw-bold mb-4"><i class="fa fa-cart-plus"></i> ShopKart</h6>
+            <p>
+              shopkart.com is a one stop destination for your family's fashion needs.
+               We give you the opportunity to give your wardrobe a makeover with the latest collections from our top brands.
+            </p>
+          </div>
+  
+          <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+            <h6 class="text-uppercase fw-bold mb-4">Make Money with Us</h6>
+            <p><a href="#!" class="text-reset">Sell on ShopKart</a></p>
+            <p><a href="#!" class="text-reset">Advertise Your Products</a></p>
+            <p><a href="#!" class="text-reset">Become an Affiliate</a></p>
+            <p><a href="#!" class="text-reset">Fulfilment by ShopKart</a></p>
+          </div>
+          <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+            <h6 class="text-uppercase fw-bold mb-4">Useful links</h6>
+            <p><a href="#!" class="text-reset">FAQ</a></p>
+            <p><a href="#!" class="text-reset">Feedback</a></p>
+            <p><a href="#!" class="text-reset">About Us</a></p>
+            <p><a href="#!" class="text-reset">Contact Us</a></p>
+          </div>
+          
+          <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+            <h6 class="text-uppercase fw-bold mb-4"> Contact</h6>
+            <p><i class="fa fa-home"></i> Tutor Joes</p>
+            <p><i class="fa fa-envelope"></i> info@example.com</p>
+            <p><i class="fa fa-phone"></i> + 91 9043017689</p>
+          </div>
+  
+        </div>
+      </div>
+    </section>
+    <div class="text-center p-4">
+      &copy;  2021 Copyright <a class="text-reset fw-bold" href="https://tutorjoes.in/"> tutorjoes.in</a>
+    </div>
+  </footer>
+
+
+67. Include inc/footer.html file in layouts/main.html at the end of body tag.
+        -- inc/main.html file,
+
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>
+
+        {% block title %}
+        {% endblock title %}
+
+    </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    {% include 'shop/inc/navbar.html' %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+    {% include 'shop/inc/footer.html' %}
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
+
+
+68. Next, fetching data from single product. if i click on one product , it will display it's content only.
+    -- goto shop/urls.py add one path. 
+    path('collections/<str:cname>/<str:pname>',views.product_details, name ='product_details'),
+    cname - to display category name, pname- to display product name.
+    -- now , create view fo product_details view.
+    -- goto views.py file, and create one function with the name of  product_details.
+    -- add three parameters request,cname,pname and return HTTPResponse ("Product Deatails")
+    def product_details(request,cname,pname):
+    return HTTPResponse ("Product Details")
+    -- goto product.index.html file, 
+    -- replace 'collections' with 'product_details' category_name
+    <a href=" {% url 'product_details' category_name item.name %}" >
+    -- replace HTTPResponce('Product Deatails) with redirect('collections') in product_details view.
+    def product_details(request,cname,pname):
+    return redirect('collections')
+
+    --shop/urls.py file,
+
+    """
+URL configuration for Ecomm_Project project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.0/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register/',views.register, name ='register'),
+    path('collections/',views.collections, name ='collections'),
+    path('collections/<str:name>',views.collectionsview, name ='collections'),
+    path('collections/<str:cname>/<str:pname>',views.product_details, name ='product_details'),
+    
+]
+
+ -- views.py file,
+
+ from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+
+# Create your views here.
+def home(request):
+    return render(request, 'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    return redirect('collections')
+
+
+ -- product/index.html file,
+
+ {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{category_name}} Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'product_details' category_name item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+69.create product_deatils.html file on products folder
+    -- copy the content in product/index.html and paste it to product/product_deatils.html 
+    -- remove for loop content and category_name inside the {{}}
+    -- product_details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{}} Product</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+70. Goto views.py and add content to product_deatils function.
+    -- remove return statement line .
+    -- views.py file,
+
+    from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+
+# Create your views here.
+def home(request):
+    return render(request, 'shop/index.html')
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+71.Pass {{products}} to product.details.html file,
+        --product.details.html file,
+        {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Products</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+            {{products}}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+save and run it.
+
+72. after the above step, webpage displays product name while click the individual product.
+    -- now let display the complete details of the product while select that product.
+    -- add '{{product}} Details' in h4 tag and remove below this {{product}} 
+    <h4 class="mb-3">{{product}} Details</h4>
+    -- create one div tag with class name "col-3 my-3" under col-12 </div> tag. 
+    <div col-4 my-3> <div>
+    -- create one img tag with src="{{products.product_name url}}" and class ="card-image-top" alt="products"
+    -- save and run. check image displaying on webpage or not ?...
+    -- next, create <div col-8 my-3> <div> under the  <div col-4 my-3> <div>
+    -- create dummy data for product.
+    -- create h5 tah with class "text-success" and content MEN'S SHOES FASHION (<h5 class="text-success ">MEN'S SHOES FASHION</h5>)
+    -- create p tag with content <p>Seller Name</p>
+    -- create p tag with product description
+    -- create <h6 class="my-2"> Current Price:Rs.<s>450</s></h6>
+    -- create <h5 class="my-2"> Offer Price:Rs.350</h5>
+    -- create div tage for favourites and add to cart.
+        <div class="my-3">
+            <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+            <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+        </div>
+    -- add style="min-height: 600px;" to section tag, it moves footer for correct height.
+
+    -- product_details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{products.product_name.url}}" class="card-image-top" alt="products">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">MEN'S SHOES FASHION</h5>
+                <p>Seller Name</p>
+                <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consectetur, saepe! Maxime molestias laboriosam obcaecati sit. Maxime sit libero officia? Excepturi aliquid quia voluptas optio sed quasi eius debitis doloremque error!</p>
+                <h6 class="my-2"> Current Price:Rs.<s>450</s></h6>
+                <h5 class="my-2"> Offer Price:Rs.350</h5>
+                <div class="my-3">
+                    <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+73. Now, Replace the dummy data's with original content.
+    -- replace img tag alt with {{products}}. remove products there.
+    -- replace MEN'S SHOES FASHION with {{product}} in h5 tag
+    -- change Seller Name in p tag with {{product.vendor}}
+    -- change description to <p>{{product.description}}</p>
+    -- change current price(Rs.450) with {{product.original_price}}
+    -- change offer price(Rs.350) with {{product.selling_price}}
+
+    -- product_details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product}}</h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+
+74.To change all products name in Capital. and make some stlye.
+    -- <h5 class="text-success ">{{product | upper}} </h5>
+    -- "text-danger" to Current price.
+    -- "text-primary" to Selling price
+
+    -- product_detail.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+
+75. Now set path(Home/collection/product: like this) to avoid getting back to collections and selecting the products again and again.
+    -- for that use bootstrap breadcrumb
+    -- goto google --> search : bootstrap --> select first link --> Docs --> Components -->Breadcrumb --> copy template
+    -- paste the template in product_deatils.html file. pasting location:below hr tag.
+    -- save and run it. works successfully.
+
+    -- product.details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">Home</a></li>
+                      <li class="breadcrumb-item"><a href="#">Library</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Data</li>
+                    </ol>
+                  </nav>
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+76. Now, change the dummy data from breadcrumb template,
+    -- set url for home .
+     <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+    -- replace Library with Collections.
+     <li class="breadcrumb-item"><a href="#">Collections</a></li>
+    -- add current product. replace Data with {{product}}
+     <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+    -- add url for Collections.
+        -- for that, we have to pase 1 parameter.
+        -- parameter 1- product category name
+        <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+
+    -- product_details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+2:10:00 minutes completed........
+
+77. Checking quantity remaining of products.
+    -- put 'if condition' for add to cart button , which is available in product_details.html file.
+    -- put else if quantity =0, it must return 'Out Of Stock"
+        {% if product.quantity >0 %}
+       <button class="btn btn-primary"><i class="fa fa-cart"></i>Add to Cart</button>
+       {% else %}
+        <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+        {% endif %}
+
+    -- change <i class="fa fa-cart"></i> to <i class="fa fa-shopping-cart"></i>
+    -- product-details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+            </div>
+
+            <div col-4 my-3>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <button class="btn btn-primary"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+78. Add the Trending product label .
+    -- in product_details.html file, change <div class = "col-4 my-3"> to <div class="col-4 my-3 pic-box">
+    -- inside that, create one div tag with class name 'Hot'. <div class="Hot"></div>
+    -- now add style for that .pic-box Hot in style.css file.
+    -- goto style.css file.
+    -- add .pic-box position to relative
+    --  .Hot postion is absolute.
+    follow the below,
+    .pic-box{
+    position: relative;
+}
+
+.Hot{
+    background-color: orangered;
+    color: white;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    display: inline;
+    border-radius: 5px;
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 10;
+}
+
+        -- add if condition just above Hot div in product_details.html
+        {% if product.Trending %}
+
+        -- product_detail.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+            </div>
+
+            <div class="col-4 my-3 pic-box">
+                {% if product.Trending %}
+                <div class="Hot"></div>
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <button class="btn btn-primary"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
+   
+-- style.css file,
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Noto Sans', sans-serif; /* Ensure consistent capitalization */
+}
+
+a {
+    text-decoration: none;
+}
+
+.carousel-item img {
+    object-fit: cover;      /* Ensures the content fills the container, cropping to maintain aspect ratio. */
+    object-position: top;   /* Aligns the content to the top of the container. */
+    height: 60vh;           /* Sets the container's height to 60% of the viewport height. */
+    overflow: hidden;       /* Hides content that overflows the container's bounds. */
+}
+
+.oldprice {
+    font-weight: bold;
+    color: red;
+}
+
+.newprice {
+    font-weight: bold;
+    background-color: green;
+    color: white;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.pic-box{
+    position: relative;
+}
+
+.Hot{
+    background-color: orangered;
+    color: white;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    display: inline;
+    border-radius: 5px;
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 10;
+}
+
+
+79. add Trending products to home page.
+    -- goto views.py
+    -- in home function,  get the Product class from models.py and store in products variable.
+    -- get filter(Trending=1)
+    product = Product.objects.filter(Trending=1)
+    -- add that product variable in return statement inside dictionary.
+    return render(request, 'shop/index.html',{'product': product})
+    -- go to shop/index.html file,
+    -- add {{product}} just below the home page div.
+    save and run.
+
+    shop/index.html file, 
+
+    {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+{% include 'shop/inc/slider.html' %}
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12"><h1>Home Page</h1></div> 
+        {{product}}
+    </div>
+</div>
+{% endblock content%}
+
+-- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+
+# Create your views here.
+def home(request):
+    product = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'product': product})
+
+def register(request):
+    return render(request, 'shop/register.html')
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+-- in webpage you can see the objects like below.
+<QuerySet [<Product: vivo T3x 5G (Celestial Green, 128 GB) (4 GB RAM)>, <Product: vivo T2x 5G (Marine Blue, 128 GB) (6 GB RAM)>, <Product: realme C65 5G (Feather Green, 128 GB) (6 GB RAM)>, <Product: realme 12x 5G (Woodland Green, 128 GB) (6 GB RAM)>, <Product: UV Protection Retro Square Sunglasses (Free Size) (For Women, Black)>, <Product: HP 2023 Intel Core i3 12th Gen 1215U - (8 GB/SSD/512 GB SSD/Windows 11 Home) 15s-fy5003TU Thin and Light Laptop (15.6 Inch, Natural Silver, 1.69 Kg,>, <Product: Prestige Omega Festival Pack - Build Your Kitchen Induction Bottom Non-Stick Coated Cookware Set (Aluminium, 3 - Piece)>, <Product: Harry Potter - Ron Weasley - Cinematic Guide (English, Hardcover, Felicity Baker)>]>
+
+
+80. To convert Objects to products.
+    -- go to products/index.html file,
+    -- copy for loop
+    -- paste it on shop/index.html
+    -- change "Home Page" to "Latest Offers"
+
+    -- shop/index.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+{% include 'shop/inc/slider.html' %}
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12"><h1>Latest Offers</h1></div> 
+
+        {% for item in product %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" " >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+</div>
+{% endblock content%}
+
+   
+81. now, if i select the product in home page, it should redirected to product details.
+   -- To do this, add <a> tag url in shop/index.html file.
+   -- wee need two parameters. 1- category name 2- product name.
+   
+   
+   
+
+   
+
+
+
+           
+
+
+
+
+      
+
+
+ 
+
