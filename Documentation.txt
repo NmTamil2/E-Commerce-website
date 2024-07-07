@@ -2540,10 +2540,3737 @@ BuySpot | Online Shopping
    
 81. now, if i select the product in home page, it should redirected to product details.
    -- To do this, add <a> tag url in shop/index.html file.
-   -- wee need two parameters. 1- category name 2- product name.
+   -- we need two parameters. 1- category name 2- product name.
+   <a href="{% url 'product_details' item.category.name item.name %}">
+   -- shop/index.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+{% include 'shop/inc/slider.html' %}
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12"><h1>Latest Offers</h1></div> 
+
+        {% for item in products %}
+                
+        <div class="col-md-4 col-lg-3">
+            <div class="card my-3">
+                <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href="{% url 'product_details' item.category.name item.name %}">
+
+                <div class="card-body">
+                    <h5 class="card-title-primary">{{item.name}}</h5>
+                    <p class="card-text">
+                        <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                        <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                        
+
+                    </p>
+                </div>
+            </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content%}
+
    
+82. now, change the text "Latest Offers"  in shop/index.html file. (for good look)
+     -- go to product_details.html file.
+     -- copy h4 and h4 tag , which is in 'col-12' div.
+     <h4 class="mb-3">{{product.name}} Details</h4>
+     <hr style="border-color: b8bfc2;">
+     -- goto shop/index.html file.
+     -- replace this <h1>Latest Offers</h1> with that h4 tag and hr tag
+     --replace this content in h4 tag '{{product.name}} Details' with 'Latest Offers'.
+
+     -- shop/index.html file,
+     {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+{% include 'shop/inc/slider.html' %}
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3">Latest Offers</h4>
+            <hr style="border-color: b8bfc2;">
+        </div> 
+
+        {% for item in products %}
+                
+        <div class="col-md-4 col-lg-3">
+            <div class="card my-3">
+                <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href="{% url 'product_details' item.category.name item.name %}">
+
+                <div class="card-body">
+                    <h5 class="card-title-primary">{{item.name}}</h5>
+                    <p class="card-text">
+                        <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                        <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                        
+
+                    </p>
+                </div>
+            </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content%}
+
    
+83. create the register form.
+    -- goto models.py file.
+    -- import following,
+    from django.contrib.auth.models import User
+    --Note: this 'User' class has inbuilt form . which is inbuilt in django. we can use it by just importing.
+    -- create a new file name form.py in shop folder.
+    -- import these two in forms.py file,
+    from django.contrib.auth.forms import UserCreationForm
+    from shop.models import User
+    -- create one Class with name of CustomUserForm(). and pass parameter as UserCreationForm.
+    -- create nested class with name of Meta:
+    -- inside that Meta class add two attributes.
+    -- One is 'model' and value is User.
+    -- second is fields  and the value is list of elements we want. ex. ['username', 'email','password1', 'password2']
+    -- shop/form.py file,
+
+from django.contrib.auth.forms import UserCreationForm
+from shop.models import User
+
+class CustomUserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email','password1', 'password2']
+
+
+
+84. Goto views.py file.
+    -- import CustomUserForm from form.py
+     from shop.form import CustomUserForm
+    -- in register function create variable with name 'form' and store CustomUserForm
+    -- pass that 'form' as a parameter to template in dictionary format at return line.
+    def register(request):
+    form = CustomUserForm()
+    return render(request, 'shop/register.html', {'form':form})
+    -- goto register.html file, and paste tha {{form}} just below the hr tag
+    
+    -- register.html file,
+
+ {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+            {{form}}
+        </div>
+    </div>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+
+    
+-- views.html file,
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+from shop.form import CustomUserForm
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def register(request):
+    form = CustomUserForm()
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+save and run it.
+
+
+85. next give some style to that register form. 
+   -- goto register.html and change {{form}} to {{from.as_p}}
+   -- now we remove the default messages available on that form and our own styles using bootstrap.
+   -- create one section tag with class name py-4 my-5 just before the last </div> .
+    <section>
+        
+    </section>
+</div>
+</section>
+
+{% endblock content%} like this.
+   --  inthat section , create one div tag with class name of container.
+   --  in that container, create one div with class name row.
+   --  in that row div, create one div with class name col-6.
+   --  in that col-6 div, create one form tag with method='post' and action=''.
+   --  in that form tag add {% csrf_token %}. without this we can't post anything.
+   --  next line, create one div tag with class name mb-4. inside that div add {{form.username}}
+   --  next line, create one div tag with class name mb-4. inside that div add {{form.email}}
+   --  next line, create one div tag with class name mb-4. inside that div add {{form.password1}}
+   --  next line, create one div tag with class name mb-4. inside that div add {{form.password2}}
+   --  next line, create one button tag with type=submit and class name btm btn-primary. inside that div add Register.
+   --  outside of </form> tag add one <p> tag with class name my-2 and content "Already User".
+   -- create one <a> tag inside that <p> tag with hreg="#' and content 'Login Now'.
+
+   -- register.html file,
+
+   {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method="post" action="">
+                        <div class="mb-4">
+                            {{form.username}}
+                        </div>
+                        <div class="mb-4">
+                            {{form.email}}
+                        </div>
+                        <div class="mb-4">
+                            {{form.password1}}
+                        </div>
+                        <div class="mb-4">
+                            {{form.password2}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="#">Login Now</a></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+85. Now, add bootstrap classes for good finishing in register form.
+    -- for that we need 'form-control' class from bootstrap.
+    -- goto forms.py
+    -- import forms from django.
+    -- just before class Meta, create a variable 'username'(our filed)
+    -- username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter User name'}))
+    -- do this for email,password1,password2.
+    -- form.py file,
+
+from django.contrib.auth.forms import UserCreationForm
+from shop.models import User
+from django import forms
+
+class CustomUserForm(UserCreationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter User name'}))
+    email = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter Email'}))
+    password1 = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter Password'}))
+    password2 = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Confirm Password'}))
+    class Meta:
+        model = User
+        fields = ['username', 'email','password1', 'password2']
+
+86. Add label for each field, such as username,email,password1,password2.
+    -- for that weed need label tag with class name form-label.
+    -- Goto register.html file,
+    -- just before, username div put label tag with class name form-label.
+    -- just before, email div put label tag with class name form-label.
+    -- just before, password1 div put label tag with class name form-label.
+    -- just before, password2 div put label tag with class name form-label.
+    -- next, we have to change password field. it's visible directly.
+    -- goto form.py , change TextInput to PasswordInput
+
+    -- register.py file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method="post" action="">
+                        <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                        </div>
+                        <label for="" class="form-label"><b>E-mail</b></label>
+                        <div class="mb-4">
+                            {{form.email}}
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                        </div>
+                        <label for="" class="form-label"><b>Password2</b></label>
+                        <div class="mb-4">
+                            {{form.password2}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="#">Login Now</a></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+-- form.py file,
+
+from django.contrib.auth.forms import UserCreationForm
+from shop.models import User
+from django import forms
+
+class CustomUserForm(UserCreationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter User name'}))
+    email = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Enter Email'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'Enter Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'Confirm Password'}))
+    class Meta:
+        model = User
+        fields = ['username', 'email','password1', 'password2']
+
+
+
+87. add user validation for register form, if they made any errors while filling register form, we have to dispaly validation messages.
+    -- to do that, go to register.html.
+    -- add {% if form.errors.username %} this just after the line {{form.username}}.
+    -- after that , create one label tag with class name text-danger  for showing error messeage.
+    -- inside label tag put {{ form.errors.username }} and next line add {% endif %}
+    -- do this for all fields.
+    -- register.html page,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method="post" action="">
+                        <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                            {% if form.errors.username %}
+                            <label for="" class="text-daanger">{{ form.errors.username}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>E-mail</b></label>
+                        <div class="mb-4">
+                            {{form.email}}
+                            {% if form.errors.email %}
+                            <label for="" class="text-daanger">{{ form.errors.email}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                            {% if form.errors.password1 %}
+                            <label for="" class="text-daanger">{{ form.errors.password1}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>Password2</b></label>
+                        <div class="mb-4">
+                            {{form.password2}}
+                            {% if form.errors.password2 %}
+                            <label for="" class="text-daanger">{{ form.errors.password2}}</label>
+                            {{% endif %}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="#">Login Now</a></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+88. while clicking 'Register' button , there should be some action performed.
+    -- go to views.py,
+    -- select register function
+    -- next line of varibale with name of 'form',
+    -- if request.method=='POST":
+    -- pass user passed data as parameter to CustomUserForm.
+    form = CustomUserForm(request.POST)
+    -- next, check the form is valid or not?
+    if form.isvalid():
+    -- if it's valid, then save.
+    form.save()
+    -- if it's not valid, then return error message. error message will load defaultly.
+    -- next we can add success message.
+    messages.success(request,"Registration Success, You can Login Now...!😃")
+    -- after successfull Registration, the page should redirected to Log in page.
+    return redirect(/login)
+    -- but we not created login view yet.
+    -- So that im creating one view just below home view with function name of login
+    -- and create login.html file on shop/templates/shop/login.html file.
+    -- copy all content from register.html file and paste it on login.html file.
+    -- in login.html, remove form tag content and p tag content. change h4 tag content from "Register page" to "Login Page"
+    -- next add url for login page in shop/urls.py file,
+    ath('login/',views.login, name ='login'),
+
+    -- register.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method="post" action="">
+                    {% csrf_token %}
+                        <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                            {% if form.errors.username %}
+                            <label for="" class="text-daanger">{{ form.errors.username}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>E-mail</b></label>
+                        <div class="mb-4">
+                            {{form.email}}
+                            {% if form.errors.email %}
+                            <label for="" class="text-daanger">{{ form.errors.email}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                            {% if form.errors.password1 %}
+                            <label for="" class="text-daanger">{{ form.errors.password1}}</label>
+                            {{% endif %}}
+                        </div>
+                        <label for="" class="form-label"><b>Password2</b></label>
+                        <div class="mb-4">
+                            {{form.password2}}
+                            {% if form.errors.password2 %}
+                            <label for="" class="text-daanger">{{ form.errors.password2}}</label>
+                            {{% endif %}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="#">Login Now</a></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+-- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+from shop.form import CustomUserForm
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def login(request):
+    return render(request, 'shop/login.html')
+
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+-- login.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> User Login </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+-- shop/urls.py file,
+
+from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register/',views.register, name ='register'),
+    path('login/',views.login, name ='login'),
+    path('collections/',views.collections, name ='collections'),
+    path('collections/<str:name>',views.collectionsview, name ='collections'),
+    path('collections/<str:cname>/<str:pname>',views.product_details, name ='product_details'),
+    
+]
+
+
+save and refresh the browser.
+
+89. Now, if i click Register button without filling fields, it will shows error message.
+        -- fill username, email, password1, password2 and press Register button.
+        -- page redirected to Login.html page.
+        -- now data saved successfully on database.
+        -- to check that, goto admin page.
+        -- check Users....
+
+2:45:45 completed......
+
+90. In Register page, error message coming under the input box. it demages the page look.
+    -- try to get the error messages on right side of input box.
+    -- goto register.html page,
+    -- copy col-6 div content and paste it just below col-6 </div> tag .
+    -- in above (1st) col-6 div, remove error messages from if to endif.
+    -- in below (2nd) col-6 remove form tag, csrf_token, keep error messeges only.keep if and endif only
+    -- in 2nd col-6 div, add class d-block in label for all error messages to display error on next , next lines.
+    -- Registration work done.
+    -- register.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method='post' action="">
+                        {% csrf_token %}
+                        <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                        </div>
+                        <label for="" class="form-label"><b>E-mail</b></label>
+                        <div class="mb-4">
+                            {{form.email}}
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                        </div>
+                        <label for="" class="form-label"><b>Password2</b></label>
+                        <div class="mb-4">
+                            {{form.password2}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="#">Login Now</a></p>
+                </div>
+                    <div class="col-6">
+                        
+                                {% if form.errors.username %}
+                                <label for="" class="text-danger d-block">{{ form.errors.username}}</label>
+                                {% endif %}
+                            
+                           
+                           
+                                {% if form.errors.email %}
+                                <label for="" class="text-danger d-block">{{ form.errors.email}}</label>
+                                {% endif %}
+                            
+                         
+                                {% if form.errors.password1 %}
+                                <label for="" class="text-danger d-block">{{ form.errors.password1}}</label>
+                                {% endif %}
+                         
+                                {% if form.errors.password2 %}
+                                <label for="" class="text-danger d-block">{{ form.errors.password2}}</label>
+                                {% endif %}
+                       
+                            
+                      
+                   
+                    </div>
+            </div>
+
+            
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+91. After successfull register,it should display alert message. we did code for that. but not displayed.
+        -- trying to display messrages.
+        -- create 'message.html' file on inc folder.
+        -- create one for loop in message.html file.
+        {% for msg in messages%}
+        {% endfor %}
+        -- inside of that forl loop, create one div with class name 'alert alert-info alert-dismissible fad show' role='alert'
+        -- inside that div pass {{msg}}
+        -- next we have to include this file with collections.html,login.html,and register.html, and product/index.html and product/product_details.html
+        -- goto login.html and include messsage.html just below of hr tag.
+        {% include 'shop/inc/message.html' %}
+        -- goto register.html and include messsage.html just below of hr tag.
+        {% include 'shop/inc/message.html' %}
+        -- goto collections.html and include messsage.html just below of hr tag.
+        {% include 'shop/inc/message.html' %}
+        -- goto product/index.html and include messsage.html just below of </nav> tag.
+        {% include 'shop/inc/message.html' %}
+        -- goto product/product_details.html and include messsage.html just below of </nav> tag.
+        {% include 'shop/inc/message.html' %}
+
+        -- there is small addition in product/index.html.
+        -- add one nav tag with aria-label='breadcrumb
+        <nav aria-label="breadcrumb">
+        -- inside that nav create one ol tag with class name "breadcrumb"
+        -- create two li tags with class name breadcrumb-item and breadcrumb-item active.
+        -- inside of 1st li tag create one <a> tag with href="{% url 'home' %} and content Home.
+        -- inside of 2nd li tag content {{category_name}} Collections. that's it.
+
+        -- message.html file,
+
+{% for msg in messages%}
+
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{msg}}
+</div>
+
+
+{% endfor %}
+
+        -- product/index.html,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{category_name}} Product</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item active">{{category_name}} Collections</li>
+                    </ol>
+                </nav>
+                {% include 'shop/inc/message.html' %}
+            </div>
+            
+            {% for item in products %}
+                
+            <div class="col-md-4 col-lg-3">
+                <div class="card my-3">
+                    <img src="{{ item.product_name.url }}" class='card-image-top' alt="Categories">
+
+                <a href=" {% url 'product_details' category_name item.name %}" >
+                    <div class="card-body">
+                        <h5 class="card-title-primary">{{item.name}}</h5>
+                        <p class="card-text">
+                            <span class="float-start oldprice"><s>Rs.{{item.original_price | stringformat:'d'}}</s></span>
+                            <span class="float-end newprice">Rs.{{item.selling_price | stringformat:'d'}}</span>
+                            
+
+                        </p>
+                    </div>
+                </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+
+</section>
+
+
+{% endblock content%}
+
    
+92. Create login page for user.
+    -- goto views.py and change function name login to login_page. bcz there is inbuilt function already existing with the name 'login'
+    
+def login_page(request):
+    return render(request, 'shop/login.html')
+    
+    -- change it in shop/urls.py also.
+path('login/',views.login_page, name ='login'),
+
+    -- go to navigation bar. copy register line. paste it to the next line and change register to login.
+    -- change the class name class="fa fa-sign-in" to login
+    -- change the class name class="fa fa-users" to register
+<li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}"> <i class="fa fa-sign-in"></i>Login</a>
+</li>
+<li class="nav-item">
+        <a class="nav-link" href="{% url 'register' %}"> <i class="fa fa-users"></i>Register</a>
+</li>
+    -- {% url 'login' %} paste this in register.html page inside <p> tag , <a> tag href=""
+    <p class="my-2">Already user? <a href="{% url 'login' %}">Login Now</a></p>
+    -- save and run.
+
+    -- inc/navbar.html file,
+
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"> <i class ="fa fa-cart-plus"></i>BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}"><i class="fa fa-home"></i>Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}"> <i class="fa fa-sign-in"></i>Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}"> <i class="fa fa-users"></i>Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'collections' %}"> <i class="fa fa-cubes"></i>Collections</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"> <i class="fa fa-shopping-cart"></i>Cart</a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  -- register.html file,
+  {% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> Register page </h4>
+            <hr style="border-color: b8bfc2;">
+            {% include 'shop/inc/message.html' %}
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method='post' action="">
+                        {% csrf_token %}
+                        <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                        </div>
+                        <label for="" class="form-label"><b>E-mail</b></label>
+                        <div class="mb-4">
+                            {{form.email}}
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                        </div>
+                        <label for="" class="form-label"><b>Password2</b></label>
+                        <div class="mb-4">
+                            {{form.password2}}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="my-2">Already user? <a href="{% url 'login' %}">Login Now</a></p>
+                </div>
+                    <div class="col-6">
+                        
+                                {% if form.errors.username %}
+                                <label for="" class="text-danger d-block">{{ form.errors.username}}</label>
+                                {% endif %}
+                            
+                           
+                           
+                                {% if form.errors.email %}
+                                <label for="" class="text-danger d-block">{{ form.errors.email}}</label>
+                                {% endif %}
+                            
+                         
+                                {% if form.errors.password1 %}
+                                <label for="" class="text-danger d-block">{{ form.errors.password1}}</label>
+                                {% endif %}
+                         
+                                {% if form.errors.password2 %}
+                                <label for="" class="text-danger d-block">{{ form.errors.password2}}</label>
+                                {% endif %}
+                       
+                            
+                      
+                   
+                    </div>
+            </div>
+
+            
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+93. create  login page contents.
+   -- create form tag with method = 'post' actions='' in col-6 div
+    <form method='post' action=""></form>
+    -- in form tag add {% csrf_token %}
+    -- copy {{form.username}} div and {{form.password}} div paste it in just below  {% csrf_token %} at login.html file.
+    <label for="" class="form-label"><b>User Name</b></label>
+                        <div class="mb-4">
+                            {{form.username}}
+                        </div>
+    <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            {{form.password1}}
+                        </div>
+    -- replace {{form.username}} with input tag type='text' name='username' id='username' class='form-control' placeholder="Enter User Name"
+    -- replace {{form.password1}} with input tag type='password' name='password' id='password' class='form-control' placeholder="Enter User Name"
+
+<input type="text" id="username" class="form-control" placeholder="Enter User name">
+<input type="password" id="password" class="form-control" placeholder="Enter Password">
+
+    -- copy submit button from register.html and paste it in login.html page. change content Login.
+     <button type="submit" class="btn btn-primary">Login</button>
+
+    -- login.html file,
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Register | BuySpot
+{% endblock title %}
+
+{% block content%}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+<div class="container" style="margin-top: 70px;">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"> User Login </h4>
+            <hr style="border-color: b8bfc2;">
+            {% include 'shop/inc/message.html' %}
+           
+        </div>
+    </div>
+    <section class="py-4 my-5">
+        <div class="container">
+            <div class="row"> 
+                <div class="col-6">
+                    <form method='post' action="">
+                        {% csrf_token %}
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                           <input type="text" name="username" id="username" class="form-control" placeholder="Enter User name">
+                        </div>
+                        <label for="" class="form-label"><b>Password1</b></label>
+                        <div class="mb-4">
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Enter Password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+
+
+                    </form>
+                    
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+</div>
+</section>
+
+{% endblock content%}
+
+    
+
+
+    
+94. set actions to the login.html page,
+    -- goto views.py file.
+    -- import authenticate and login from django.contrib.auth
+    from django.contrib.auth import authenticate,login
+    -- in login_page function, check the if the request is post.
+    if request.method == "POST":
+    -- if it's post method, then get 'username' and store it in variable called 'name'.
+    name = request.POST.get('username')
+    -- similarly get 'password' and store it on 'pwd' variable
+    pwd = request.POST.get('password')
+    -- next, create variable with name 'user' and store the function authenticate() and parameters request,username = name, password = pwd.
+     user = authenticate(request,username = name, password = pwd)
+     -- this authenticate() checks the username and password in database.
+     -- if the username and passwordis correct, it allows user to login with message.and redirect to home page
+     if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect('home')
+     -- if it is not , then it returns error message. and redirect to login page.
+            else:
+            messages.error("request,Invalid User Username or Password")
+            return redirect('login')
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def login_page(request):
+    if request.method == "POST":
+        name = request.POST.get('username')
+        pwd = request.POST.get('password')
+        user = authenticate(request,username = name, password = pwd)
+        if user is not None:
+            login(request,user)
+            messages.success(request,"Logged in Successfully")
+            return redirect('home')
+        else:
+            messages.error(request,"Invalid User Username or Password")
+            return redirect('login')
+    return render(request, 'shop/login.html')
+
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+95. Create logout page.
+    -- goto shop/urls.py file, create url for logout_page function.
+    path('logout/',views.logout_page, name ='logout'),
+    -- goto views.py create a new function with name of logout_page.(logout is also inbuilt function. so dont use the name )
+    def logout_page(request):
+    -- if we want to logout , then we have to check is user logged in successfully or not?
+    if request.user.is_authenticated:
+    -- if user is successfully  logged in, the he eligible to logout. accept logout request.
+    -- import logout from django.contrib.auth
+    from django.contrib.auth import authenticate,login,logout
+    -- accept request
+    logout(request)
+    -- add boostrap logout message.
+    messages.success(request, "Logged Out Successfully")
+    -- redirect to home Page
+    return redirect('home')
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+    if request.method == "POST":
+        name = request.POST.get('username')
+        pwd = request.POST.get('password')
+        user = authenticate(request,username = name, password = pwd)
+        if user is not None:
+            login(request,user)
+            messages.success(request,"Logged in Successfully")
+            return redirect('home')
+        else:
+            messages.error(request,"Invalid User Username or Password")
+            return redirect('login')
+    return render(request, 'shop/login.html')
+
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+96. add logout li tag on inc/navbar.html file,
+    -- goto inc/navbar.html file,
+    --  remove ul tag fully.
+    -- create one div with class='navbar-nav ms-auto"
+    <div class="navbar-nav ms-auto">
+
+    --create <a> tag with class 'nav-link' aria-current='page' href='{% url 'home' %}' <i class='fa fa-home'></i>Home</a>
+    <a class="nav-link" aria-current="page" href="{% url 'home' %}"><i class="fa fa-home"></i>Home</a>
+
+    -- put if condition. if user is authenticated,
+    {% if request.user.is_authenticated %}
+
+    -- create <a> tag with class 'nav-link' aria-current='page' href='#' <i class='fa fa-user'></i>{{request.user}}</a>
+    <a class="nav-link" aria-current="page" href="#"><i class="fa fa-user"></i>{{request.user}}</a>
+
+    -- create <a> tag with class 'nav-link' aria-current='page' href='{% url 'logout' %}' <i class='fa fa-sign-out'></i>Logout</a>
+    <a class="nav-link" aria-current="page" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i>Logout</a>
+
+    -- create else tag
+    {% else %}
+
+
+
+    --create <a> tag with class nav-link  href='{% url 'login' %}' <i class='fa fa-sign-in'></i>Login</a>
+    <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in"></i>Login</a>
+
+    --create <a> tag with class nav-link  href='{% url 'register' %}' <i class='fa fa-users'></i>Register</a>
+    <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-users"></i>Register</a>
+
+    -- add endif 
+    {% endif %}
+
+    --create <a> tag with class nav-link  href='{% url 'collections' %}' <i class='fa fa-cubes'></i>Collections</a>
+    <a class="nav-link" href="{% url 'collections' %}"><i class="fa fa-cubes"></i>Collections</a>
+
+    --create <a> tag with class nav-link  href='#' <i class='fa fa-shopping-cart'></i>Cart</a>
+    <a class="nav-link" href="#"><i class="fa fa-shopping-cart"></i>Cart</a>
+
+    -- inc/navbar.html file,
+
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"> <i class ="fa fa-cart-plus"></i>BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="navbar-nav ms-auto">
+          
+          <a class="nav-link" aria-current="page" href="{% url 'home' %}"><i class="fa fa-home"></i>Home</a>
+
+          {% if request.user.is_authenticated %}
+            <a class="nav-link" aria-current="page" href="#"><i class="fa fa-user"></i>{{request.user}}</a>
+            <a class="nav-link" aria-current="page" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i>Logout</a>
+
+          {% else %}
+          
+            <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in"></i>Login</a>
+            <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-users"></i>Register</a>
+
+          {% endif %}
+            <a class="nav-link" href="{% url 'collections' %}"><i class="fa fa-cubes"></i>Collections</a>
+            <a class="nav-link" href="#"><i class="fa fa-shopping-cart"></i>Cart</a>
+
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  save and run.....
+
+97. Now, Login, Register, collections, cart displaying default.
+    -- register and log in works successfully.
+    -- but if i give 120 http://127.0.0.1:8000/login/ directly, it moves to login page.
+    -- i dont want like this.
+    -- so, goto views.py
+    -- in login_page, put if condition, condition is if user is athenticated, then redirect to home page.
+    -- else do existing.
+
+        def login_page(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == "POST":
+            name = request.POST.get('username')
+            pwd = request.POST.get('password')
+            user = authenticate(request,username = name, password = pwd)
+            if user is not None:
+                login(request,user)
+                messages.success(request,"Logged in Successfully")
+                return redirect('home')
+        else:
+            messages.error(request,"Invalid User Username or Password")
+            return redirect('login')
+    return render(request, 'shop/login.html')
+    
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == "POST":
+            name = request.POST.get('username')
+            pwd = request.POST.get('password')
+            user = authenticate(request,username = name, password = pwd)
+            if user is not None:
+                login(request,user)
+                messages.success(request,"Logged in Successfully")
+                return redirect('home')
+        else:
+            messages.error(request,"Invalid User Username or Password")
+            return redirect('login')
+    return render(request, 'shop/login.html')
+
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+
+98. Next, Add Cart page.
+    -- to add cart, i want to add quantity just before add to cart button.
+    -- goto product_details.html
+    -- in last after</section> tag add one script tag
+    -- if quantity is > 0 , then only it get quantity from user.
+    -- so that add one <p> tag under  {% if product.quantity > 0 %} it in product_deatils.html.
+    -- inside that <p> tag create one div tag with class="input-group" style="width: 150px;".
+    <div class="input-group" style="width: 150px;"></div>
+    -- inside that div, create one button tag with class "input-group-text bg-success text-light" id="btnMinus" and content <i class="fa fa-minus"></i>.
+    <button class="input-group-text bg-success text-light" id="btnMinus" ><i class="fa fa-minus"></i></button>
+    -- craete one input tag with type=text name='qty' id='txtQty' value='1' class='form-control text-center'.
+    <input type=text name='qty' id='txtQty' value='1' class='form-control text-center'>
+    -- create one button tag with class "input-group-text bg-success text-light" id="btnPlus" and content <i class="fa fa-plus"></i>.
+    <button class="input-group-text bg-success text-light" id="btnPlus" ><i class="fa fa-plus"></i></button>
+    -- save and run. successfully created quantity structure.
+
+    -- product_deatils.html,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+                  {% include 'shop/inc/message.html' %}
+            </div>
+
+            <div class="col-4 my-3 pic-box">
+                {% if product.Trending %}
+                <div class="Hot"></div>
+                {% endif %}
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <p>
+                        <div class="input-group" style="width: 150px;">
+                            <button class="input-group-text bg-success text-light" id="btnMinus" ><i class="fa fa-minus"></i></button>
+                            <input type=text name='qty' id='txtQty' value='1' class='form-control text-center'>
+                            <button class="input-group-text bg-success text-light" id="btnPlus" ><i class="fa fa-plus"></i></button>
+
+                        </div>
+                    </p>
+                    <button class="btn btn-primary"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+<script>
+
+
+</script>
+
+{% endblock content%}
+
+   
+99. Now,  default quantity is 1. and if i click + it should increase. elle if i click - it should decrease. 
+    -- this logic was done by javascript.
+    -- go to product_deatils.html
+    -- goto script tag
+    -- inside of script tag, write document.EventListener("DomContentLoaded",function(event){
+
+    })
+    -- store in cont varibale these three,  id="btnMinus",id='txtQty', id="btnPlus"
+    -- to check this addEventListener is working or not, add one alert message and check it.
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const btnPlus = document.getElementById("btnPlus");
+        const btnMinus = document.getElementById("btnMinus");
+        const txtQty = document.getElementById("txtQty");
+
+        btnPlus.addEventListener("click", function() {
+            alert("Hello");
+        });
+    });
+</script>
+    -- remove alert .
+    -- convert "txtQty" from string to Integer and store it in 'qty' variable.
+    let qty = parseInt(txtQty.value,10); # 10 - based on decimal number
+    -- incase if txtQty is letters, it should change the quantity to zero.
+    -- for that , i used ternary operator.
+    qty =isNaN(qty)?0:qty;   # NaN-Not a Number
+    -- next, add if condtion. Note: many of ecommerce website allows only 10 quantity to purchase.
+    -- logic was, if user enters below 10 , then it should be increased from 1 AND stored in txtQty variable.
+                if(qty<10){
+                qty++;
+                txtQty.value = qty
+                }
+    save and run. checkt it works or not.
+    working successfully.
+    -- Now write same logic for btnMinus
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>1){
+                qty--;
+                txtQty.value = qty;
+            }
+        })
+    -- working successfully.
+
+    -- product_deatils.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+                  {% include 'shop/inc/message.html' %}
+            </div>
+
+            <div class="col-4 my-3 pic-box">
+                {% if product.Trending %}
+                <div class="Hot"></div>
+                {% endif %}
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <p>
+                        <div class="input-group" style="width: 150px;">
+                            <button class="input-group-text bg-success text-light" id="btnMinus" ><i class="fa fa-minus"></i></button>
+                            <input type=text name='qty' id='txtQty' value='1' class='form-control text-center'>
+                            <button class="input-group-text bg-success text-light" id="btnPlus" ><i class="fa fa-plus"></i></button>
+
+                        </div>
+                    </p>
+                    <button class="btn btn-primary"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const btnPlus = document.getElementById("btnPlus");
+        const btnMinus = document.getElementById("btnMinus");
+        const txtQty = document.getElementById("txtQty");
+
+        btnPlus.addEventListener("click", function() {
+            let qty = parseInt(txtQty.value,10);
+            qty =isNaN(qty)?0:qty;
+            if(qty<10){
+                qty++;
+                txtQty.value = qty;
+            }
+        });
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>1){
+                qty--;
+                txtQty.value = qty;
+            }
+        })
+    });
+</script>
+
+{% endblock content%}
+
+   
+100. Next Cart database model.
+    -- logic : while user presses Add to cart button, it should  check first whether the user is authenticated or not.
+    if user is authenticated , then the quantity and products must  stored in database.
+    -- Goto models.py file.
+    -- create class with name of 'Cart;
+    class Cart(models.Model):
+    -- add fields user,product,product_quantity and created_at.
+    -- user and product is ForeignKey with User and Product.
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_qty = models.IntegerField(null=False,blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    -- next, py manage.py makemigrations
+    -- py manage.py migrate
+    successfully created Cart table.
+
+    -- models.py file,
+
+from django.db import models
+from django.contrib.auth.models import User
+import datetime
+import os
+
+def getFileName(instance,filename):
+    now_time = datetime.datetime.now().strftime("%Y%m%d%H:%M:%S")
+    new_filename = "%s%s"%(now_time,filename)
+    return os.path.join('uploads/',new_filename)
+
+class Category(models.Model):
+    name = models.CharField(max_length=150, blank=False, null=False)
+    image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    description = models.TextField(max_length=1500, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Product(models.Model):
+    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, blank=False, null=False)
+    vendor = models.CharField(max_length=150, blank=False, null=False)
+    product_image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    quantity=models.IntegerField(null=False,blank=False)
+    original_price = models.FloatField(null=False, blank=False)
+    selling_price = models.FloatField(null=False, blank=False)
+    description = models.TextField(max_length=1500, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    Trending = models.BooleanField(default=False, help_text="0-default, 1-Trending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name}"
+    
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_qty = models.IntegerField(null=False,blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+  
+101. to store quantity and product_deatils in databae, we need ajax requeston javascript.
+    -- goto product_deatils.html file
+    -- add {% csrf_token %} on below {% if product.quantity > 0 %}
+    -- add <input type="hidden" value="{{product_id}}" name="" id="pid"> this line above {% csrf_token %}
+    {% if product.quantity > 0 %}
+        <input type="hidden" value="{{product_id}}" name="" id="pid">
+        {% csrf_token %} 
+    -- now we have product_id,quantity and token. we have to send these 3 to database while user clicks Add to Cart button.
+    -- add id='btnCart' to Add to Cart button.
+    <button class="btn btn-primary" id="btnCart"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+    -- goto to script tag and get element id 'pid' and store variable const pid.
+    const pid = document.getElementById("pid");
+    -- next stor csrf_token in 'tkn' variable using querySelector.
+    const tkn = document.querySelector('[name=name="csrfmiddlewaretoken"]').value
+    #u can get name="csrfmiddlewaretoken" by ctrl+u on product_details page.
+    -- goto to script tag and get element btnCart  and store variable const btnCart.
+     const btnCart = document.getElementById("btnCart")
+    -- create one addEventListener to BtnCart.
+    -- inside if block,create one object named postobj and store qty, pid.value,tkn, in variables product_qty,pid,token
+
+ btnCart.addEventListener("click", function(){
+            qty = isNaN(qty)?0:qty;
+            if(qty>0){
+                let postobj={
+                    product_qty : qty,
+                    pid : pid.value ,
+                    token : tkn 
+
+                }
+            }
+            else{
+                alert("Please Enter the quantity")
+            }
+
+        })
+
+        -- product_deatils.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+                  {% include 'shop/inc/message.html' %}
+            </div>
+
+            <div class="col-4 my-3 pic-box">
+                {% if product.Trending %}
+                <div class="Hot"></div>
+                {% endif %}
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <input type="hidden" value="{{product_id}}" name="" id="pid">
+                    {% csrf_token %} 
+                    <p>
+                        <div class="input-group" style="width: 150px;">
+                            <button class="input-group-text bg-success text-light" id="btnMinus" ><i class="fa fa-minus"></i></button>
+                            <input type=text name='qty' id='txtQty' value='1' class='form-control text-center'>
+                            <button class="input-group-text bg-success text-light" id="btnPlus" ><i class="fa fa-plus"></i></button>
+
+                        </div>
+                    </p>
+                    <button class="btn btn-primary" id="btnCart"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const btnPlus = document.getElementById("btnPlus");
+        const btnMinus = document.getElementById("btnMinus");
+        const txtQty = document.getElementById("txtQty");
+        const pid = document.getElementById("pid");
+        const tkn = document.querySelector('[name="csrfmiddlewaretoken"]').value
+        const btnCart = document.getElementById("btnCart")
+
+        btnPlus.addEventListener("click", function() {
+            let qty = parseInt(txtQty.value,10);
+            qty =isNaN(qty)?0:qty;
+            if(qty<10){
+                qty++;
+                txtQty.value = qty;
+            }
+        });
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>1){
+                qty--;
+                txtQty.value = qty;
+            }
+        })
+        btnCart.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>0){
+                let postobj={
+                    product_qty : qty,
+                    pid : pid.value ,
+                    token : tkn 
+
+                }
+                console.log(postobj);
+            }
+            else{
+                alert("Please Enter the quantity")
+            }
+
+        });
+    });
+</script>
+
+{% endblock content%}
+
+
+
+102. Now passing this id,qty and token to server via ajax.
+    -- first, we have to create one Url for Cart .
+    -- goto shop/urls.py file and add one url for addtocart
+    path('addtocart/',views.add_to_cart, name ='addtocart'),
+    -- next create one view to  add_to_cart.
+    -- goto views.py file,
+    -- create a function called add_to_cart. and dont write anything , just pass.
+    def add_to_cart(request):
+        pass
+    -- Now we can pass the id,qty and token to server via ajax in javascript through http request method 'post'.
+    -- goto product_details.html file,
+    -- remove token key and value from object.
+    -- fetch() -- way to pass parameters to database. (not explaine properly.)
+    -- remove {% csrf_token %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const btnPlus = document.getElementById("btnPlus");
+        const btnMinus = document.getElementById("btnMinus");
+        const txtQty = document.getElementById("txtQty");
+        const pid = document.getElementById("pid");
+        const tkn = document.querySelector('[name="csrfmiddlewaretoken"]').value
+        const btnCart = document.getElementById("btnCart")
+
+        btnPlus.addEventListener("click", function() {
+            let qty = parseInt(txtQty.value,10);
+            qty =isNaN(qty)?0:qty;
+            if(qty<10){
+                qty++;
+                txtQty.value = qty;
+            }
+        });
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>1){
+                qty--;
+                txtQty.value = qty;
+            }
+        })
+        btnCart.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>0){
+                let postobj={
+                    product_qty : qty,
+                    pid : pid.value 
+                
+                }
+                console.log(postobj);
+                fetch("/addtocart",{
+                    method: "POST",
+                    credentials : "same-origin",
+                    headers: {
+                        'Accept' : 'application/json',
+                        'X-Requested-With' : 'XML-HttpRequest',
+                        'X-CSRFToken' : '{{ csrf_token }}'
+                     },
+                     body: JSON.stringify(postobj)
+                }).then(response=>{
+                    return response.json();
+                }).then(data=>{
+                    console.log(data);
+                });
+            }
+            else{
+                alert("Please Enter the quantity")
+            }
+
+        });
+    });
+</script>
+
+        -- goto views.py
+        -- write if condtion on add_to_cart function
+        -- from django.http import HttpResponse,JsonResponse 
+def add_to_cart(request):
+    if request.headers.get('x-requested-with') == ('XML-HttpRequest'):
+        pass
+   else:
+        return JsonResponse({'status':'Invalid Access'}, status = 200)
+
+        -- next, check whether the user is authenticated or not in place of pass.
+
+def add_to_cart(request):
+   if request.headers.get('x-requested-with') == ('XML-HttpRequest'):
+      if request.user.is_authenticated:
+         pass
+      else:
+         return JsonResponse({'status':'Log in to Add Cart'}, status = 200)
+         
+   else:
+      return JsonResponse({'status':'Invalid Access'}, status = 200)
+
+      -- pass 'data' if user is authenticated. (jason data) and import json
+
+def add_to_cart(request):
+   if request.headers.get('x-requested-with') == ('XML-HttpRequest'):
+      if request.user.is_authenticated:
+         data = json.load(request)
+      else:
+         return JsonResponse({'status':'Log in to Add Cart'}, status = 200)
+         
+   else:
+      return JsonResponse({'status':'Invalid Access'}, status = 200)
+
+    -- viwes.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product
+from django.contrib import messages
+from django.http import HttpResponse,JsonResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+import json
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+def add_to_cart(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                print(data['product_qty'])
+                print(data['pid'])
+                print(request.user.id)
+                return JsonResponse({'status': 'Product Add to Cart success'}, status=200)
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+  if request.user.is_authenticated:
+    return redirect('home')
+  else:
+    if request.method=='POST':
+      name=request.POST.get('username')
+      pwd=request.POST.get('password')
+      user=authenticate(request,username=name,password=pwd)
+      if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect("/")
+      else:
+        messages.error(request,"Invalid User Name or Password")
+        return redirect("/login")
+    return render(request,"shop/login.html")
+
+      
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+ 103. now, save all the data (product_qty,pid,token) in database.
+    -- goto views.py 
+    -- remove print and store it on variable.
+        product_qty = (data['product_qty'])
+        product_qty = (data['pid'])
+    -- user.id --> comment it
+     # print(request.user.id)
+    -- next, logic :
+        1. the user can access Add to cart if the selected product available in store.
+        product_status = Product.objects.grt(id = product_id )
+        2. if product available in store, next check tha particular user already added that product or not in Cart
+                if product_status:
+                    if Cart.objects.filter(user= request.user.id,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+        3. in else, check product quantity in store, if it's available Add it to cart.
+         else:
+            if product_status.quantity>=product_qty:
+                Cart.objects.create(user= request.user.id,product_id = product_id,product_qty = product_qty)
+                return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                else:
+                    return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+        4. finally, remove return JsonResponse({'status': 'Product Add to Cart success'}, status=200) line.
+
+        working successfully on console..
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product, Cart
+from django.contrib import messages
+from django.http import HttpResponse,JsonResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+import json
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+def add_to_cart(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+  if request.user.is_authenticated:
+    return redirect('home')
+  else:
+    if request.method=='POST':
+      name=request.POST.get('username')
+      pwd=request.POST.get('password')
+      user=authenticate(request,username=name,password=pwd)
+      if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect("/")
+      else:
+        messages.error(request,"Invalid User Name or Password")
+        return redirect("/login")
+    return render(request,"shop/login.html")
+
+      
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+
+104. Till now all the instructions like, Login to add cart, Out of stock, everything i did in console only.
+    -- now, we are going to print on alert box.
+    -- goto product_details.html and add comment this console.log(data);
+    //console.log(data);
+    -- alert(data['status']); --> add this message just below //console.log(data);
+    -- next do comment console.log(postobj); this also.
+    //console.log(postobj);
+
+    -- product_details.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+BuySpot | Online Shopping
+{% endblock title %}
+
+{% block content%}
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product.name}} Details</h4>
+                <hr style="border-color: b8bfc2;">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                      <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name %}">Collections</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                    </ol>
+                  </nav>
+                  {% include 'shop/inc/message.html' %}
+            </div>
+
+            <div class="col-4 my-3 pic-box">
+                {% if product.Trending %}
+                <div class="Hot"></div>
+                {% endif %}
+                <img src="{{product.product_image.url}}" class="card-image-top" alt="{{product.name}}">
+            </div>
+
+            <div class="col-8 my-3">
+                <h5 class="text-success ">{{product | upper}} </h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6 class="my-2 text-danger"> Current Price : Rs.<s>{{product.original_price}}</s></h6>
+                <h5 class="my-2 text-primary"> Offer Price : Rs.{{product.selling_price}}</h5>
+                <div class="my-3">
+                    {% if product.quantity > 0 %}
+                    <input type="hidden" value="{{product.id}}" id="pid">
+                    {% csrf_token %} 
+                    <p>
+                        <div class="input-group" style="width: 150px;">
+                            <button class="input-group-text bg-success text-light" id="btnMinus" ><i class="fa fa-minus"></i></button>
+                            <input type=text name='qty' id='txtQty' value='1' class='form-control text-center'>
+                            <button class="input-group-text bg-success text-light" id="btnPlus" ><i class="fa fa-plus"></i></button>
+
+                        </div>
+                    </p>
+                    <button class="btn btn-primary" id="btnCart"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                    {% else %}
+                    <button class="btn btn-secondary"><i class="fa fa-minus"></i>Out Of Stock</button>
+                    {% endif %}
+                    <button class="btn btn-danger"><i class="fa fa-heart"></i></button>
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+      const btnPlus = document.getElementById("btnPlus");
+      const btnMinus = document.getElementById("btnMinus");
+      const txtQty = document.getElementById("txtQty");
+      const pid = document.getElementById("pid");
+      const btnCart = document.getElementById("btnCart");
+
+        btnPlus.addEventListener("click", function() {
+            let qty = parseInt(txtQty.value,10);
+            qty =isNaN(qty)?0:qty;
+            if(qty<10){
+                qty++;
+                txtQty.value = qty;
+            }
+        });
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>1){
+                qty--;
+                txtQty.value = qty;
+            }
+        })
+        btnCart.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value,10);
+            qty = isNaN(qty)?0:qty;
+            if(qty>0){
+                let postobj={
+                    product_qty : qty,
+                    pid : pid.value,
+                
+                };
+                // console.log(postobj);
+                fetch("/addtocart",{
+                    method: 'POST',
+                    credentials : 'same-origin',
+                    headers: {
+                        'Accept' : 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken' : '{{ csrf_token }}',
+                     },
+                     body: JSON.stringify(postobj)
+                }).then(response=>{
+                    return response.json();
+                }).then(data=>{
+                    // console.log(data);
+                    alert(data['status']);
+                });
+            }
+            else{
+                alert("Please Enter the quantity")
+            }
+
+        });
+    });
+</script>
+
+{% endblock content%}
+
+   
+105. next, create individualpage to display cart items.
+    -- goto inc/navbar.html
+    -- add {% url 'cart' %}
+    <a class="nav-link" href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i>Cart</a>
+    -- goto shop/urls.py and add path to cart.
+    path('cart',views.cart_page, name ='cart'),
+    -- now, goto views.py and add one function for cart_page.
+    -- add  authenticated user only can access add to cart.
+        if request.user.is_authenticated:
+            pass
+    -- else redirect to home page.
+    else:
+        return redirect('home')
+    -- remove pass and get the particular user and store on 'cart' variable.
+    cart = Cart.objects.filter( user = request.user)
+    -- then, return shop/cart.html and cart as template tag(dictionary format)
+    return render(request, 'templates/shop/cart.html,',{'cart': cart})
+
+    -- create cart.html file on 'templates/shop' folder.
+    -- copy the content from collections.html and paste it on cart.html.
+    -- remove <section class ='py-5 text-center container' style="margin-top: 70px;" this section tag.
+    -- change <h4 class="mb-3">Categories</h4> to <h4 class="mb-3">Cart items</h4>
+    -- remove this . {% include 'shop/inc/message.html' %} 
+    -- remove div tag completely. <div class="col-md-4 col-lg-3">
+    -- change {% for item in category %} to {% for item in cart %}
+    -- pass the key 'item'in jinja template {{item}}
+      {% for item in category %}
+         {{item}}
+      {% endfor %}
+      save and refresh the web page.
+    -- im getting Cart object (1) Cart object (2) on my cart page. (objects)
+    -- templates/shop/cart.html,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+                {% for item in cart %}
+                    {{item}}
+                
+                
+                {% endfor %}
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product, Cart
+from django.contrib import messages
+from django.http import HttpResponse,JsonResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+import json
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def cart_page(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter( user = request.user)
+        return render(request, 'shop/cart.html',{'cart': cart})
+    else:
+        return redirect('home')
+
+
+def add_to_cart(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+  if request.user.is_authenticated:
+    return redirect('home')
+  else:
+    if request.method=='POST':
+      name=request.POST.get('username')
+      pwd=request.POST.get('password')
+      user=authenticate(request,username=name,password=pwd)
+      if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect("/")
+      else:
+        messages.error(request,"Invalid User Name or Password")
+        return redirect("/login")
+    return render(request,"shop/login.html")
+
+      
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+
+
+106. next we can display the objects in table format using boostrap.
+    -- just below, {% end for %}, create one table tag with class name " table table-bordered.
+    -- create one tr tag and inside of tr tag create 4 th tag with content of Image,Product Name,Quantity, and Remove.
+                    <table class="table table-bordered">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Remove</th>
+                    </tr>
+                </table>
+    -- cut the for loop and paste it below tha </table> tag.
+        <table class="table table-bordered">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Remove</th>
+                    </tr>
+        </table>
+        {% for item in cart %}
+            {{item}}
+        {% endfor %}
+
+    -- next remove  {{item}}.
+    -- create one  tr tag on for loop,
+    -- create 4 td tag inside that tr tag.
+                {% for item in cart %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+    -- in first td tag i need image.
+    -- so add one img tag in first td tag
+    <td><img src="{{ item.product.product_image.url }} " height="75px" alt="{item.product_name}"></td>
+    -- in 2nd td tag, add <td>{{ item.product_name}}</td>
+    -- in 3rd <td>{{ item.product_qty}}</td>
+    -- 4th td tag, <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+    -- finally cut the </table> tag from top to paste under {% endfor %}
+    save and refresh
+
+    -- cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="table table-bordered">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+                </tr>
+            {% endfor %}
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+
+
+107.   Next add Unit price and Total Amount in the table.
+    -- remove table class 'table table-bordered'.
+    -- add Unit in th tag just above Quantity
+    -- add Amount in th tag jus above Remove
+                <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+    -- add td for {{item.product.selling_price}} just above <td>{{ item.product_qty }}</td>
+    <td>{{ item.product.selling_price }}</td>
+    save and refresh...
+    -- Unit price displaying in float. Now we remove that decimal points.
+    -- add | stringformat:'d' to <td>{{ item.product.selling_price }}</td>
+    <td>{{ item.product.selling_price  stringformat:'d' }}</td>
+    -- now multiply Unit with Quantity and the result display on Amount.
+    -- go to model.py
+    -- inside the Cart model...... check the indentation.....
+    -- create new property using @property decorator.
+    -- add @ property
+    -- add function with name total_cost parameter self
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_qty = models.IntegerField(null=False,blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_cost(self):
+       return self.product_qty * self.product.selling_price
+save it.
+
+--models.py file,
+
+from django.db import models
+from django.contrib.auth.models import User
+import datetime
+import os
+
+def getFileName(instance,filename):
+    now_time = datetime.datetime.now().strftime("%Y%m%d%H:%M:%S")
+    new_filename = "%s%s"%(now_time,filename)
+    return os.path.join('uploads/',new_filename)
+
+class Category(models.Model):
+    name = models.CharField(max_length=150, blank=False, null=False)
+    image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    description = models.TextField(max_length=1500, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Product(models.Model):
+    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, blank=False, null=False)
+    vendor = models.CharField(max_length=150, blank=False, null=False)
+    product_image = models.ImageField(upload_to = getFileName,blank=True, null=True)
+    quantity=models.IntegerField(null=False,blank=False)
+    original_price = models.FloatField(null=False, blank=False)
+    selling_price = models.FloatField(null=False, blank=False)
+    description = models.TextField(max_length=1500, blank=False, null=False)
+    status = models.BooleanField(default=False, help_text="0-show, 1-Hideen")
+    Trending = models.BooleanField(default=False, help_text="0-default, 1-Trending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name}"
+    
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_qty = models.IntegerField(null=False,blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_cost(self):
+        return self.product_qty * self.product.selling_price
+
+
+        -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+                </tr>
+            {% endfor %}
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+    
+
+  
+108. Goto templates/shop/cart.html,
+
+    -- add {{item.total_cost}} in td just above the Remove
+
+    -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td>{{ item.total_cost }}</td>
+                    <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+                </tr>
+            {% endfor %}
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+        -- remove decimal values from Amount column also.
+        <td>{{ item.total_cost | stringformat:'d' }}</td>
+
+
+109. Add Total amount for all cart products.
+    -- goto cart.html file,
+    -- add tr tag just above </table> tag.
+    -- create td tag with content Total Amount
+    <td>Total Amount</td>
+    -- create another td tag with id='net'
+    -- add class amt for {{total_cost}} td tag.
+    <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+    -- add colspan='5' in id='net' tag. and content 0
+    <td id="net" colspan="5">0</td>
+    -- add three empty td just above Total Amount td tag
+    -- remove colspan='5'
+    -- remove 3rd td column
+    -- add colspan='2' for Total Amount td column and Make letters bold by using b tag
+                <tr>
+                <td></td>
+                <td></td>
+                <td colspan="2"><b>Total Amount</b></td>
+                <td id="net">0</td>
+            </tr>
+            save it.
+    -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+                    <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td colspan="2"><b>Total Amount</b></td>
+                <td id="net">0</td>
+            </tr>
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock content%}
+
+    
+110. Create one script tag after </section> tag.(not explained properly by tutor)
+    -- create variable const nodes using querySelectorAll get the id .amt
+    const nodes = document.querySelectorAll('.amt')
+    -- create arr variable and store the Array(nodes)
+    const arr = Array.from(nodes)
+    -- create const arr variable, create function with name reduce and parameter acc,curr
+    const res = arr.reduce((acc,curr) => {
+        return acc+= Number(curr.textContent)
+    },0);
+    -- finally get id=net by getElementById and add innerHtml Rs.
+    <script>
+    const nodes = document.querySelectorAll('.amt')
+    const arr = Array.from(nodes)
+    const res = arr.reduce((acc,curr) => {
+        return acc+= Number(curr.textContent)
+    },0);
+    document.getElementById('net').innerHTML = "Rs. " + res;
+</script>
+
+    save and run the webpage.
+    Total Amount of all peoducts displayed Successfully.
+
+   -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+                    <td><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</button></td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td colspan="2"><b>Total Amount</b></td>
+                <td id="net">0</td>
+            </tr>
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    const nodes = document.querySelectorAll('.amt')
+    const arr = Array.from(nodes)
+    const res = arr.reduce((acc,curr) => {
+        return acc+= Number(curr.textContent)
+    },0);
+    document.getElementById('net').innerHTML = "Rs. " + res;
+</script>
+
+
+{% endblock content%}
+
+
+111. Now, Add functionality to Remove button.
+
+    -- Goto templates/shop/cart.html file,
+    -- change this button tag to <a> tag.
+    <td><a href="#" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</a></td> 
+    -- add alert message using Onclick event and content "are you sure to delete.
+    <td><a href="#" onclick="return confirm('Are You Sure? To Remove')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</a></td>
+    -- save and check alert msg is working or not.
+    -- successfully working.
+    -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+                    <td><a href="#" onclick="return confirm('Are You Sure? To Remove')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</a></td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td colspan="2"><b>Total Amount</b></td>
+                <td id="net">0</td>
+            </tr>
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    const nodes = document.querySelectorAll('.amt')
+    const arr = Array.from(nodes)
+    const res = arr.reduce((acc,curr) => {
+        return acc+= Number(curr.textContent)
+    },0);
+    document.getElementById('net').innerHTML = "Rs. " + res;
+</script>
+
+
+{% endblock content%}
+
+
+112. Remove after pressing ok on onclick event alert message:
+
+    -- Goto templates/shop/cart.html file,
+    -- replace href='#' in a tag  with ' {% url 'remove_cart' %}'
+    <td><a href="{% url remove_cart %}" onclick="return confirm('Are You Sure? To Remove')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</a></td>
+    -- we need product item id to delete.
+    -- add item.id near "{% url remove_cart %}"
+     <td><a href="{% url remove_cart item.id %}" onclick="return confirm('Are You Sure? To Remove')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Remove</a></td>
+     
+    -- Goto shop/urls.py add path for remove_cart
+       path('remove_cart/<str:id>',views.remove_cart, name ='remove_cart'),
+
+    -- Goto views.py and add function with name of remove_cart
+    def remove_cart(request,cid):
+        cartitem=Cart.objects.get(id=cid)
+        cartitem.delete()
+        return redirect("/cart")
+
+    everything works fine.
+
+    -- views.py
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product, Cart
+from django.contrib import messages
+from django.http import HttpResponse,JsonResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+import json
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def remove_cart(request,cid):
+  cartitem=Cart.objects.get(id=cid)
+  cartitem.delete()
+  return redirect("/cart")
+
+def cart_page(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter( user = request.user)
+        return render(request, 'shop/cart.html',{'cart': cart})
+    else:
+        return redirect('home')
+
+
+def add_to_cart(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+  if request.user.is_authenticated:
+    return redirect('home')
+  else:
+    if request.method=='POST':
+      name=request.POST.get('username')
+      pwd=request.POST.get('password')
+      user=authenticate(request,username=name,password=pwd)
+      if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect("/")
+      else:
+        messages.error(request,"Invalid User Name or Password")
+        return redirect("/login")
+    return render(request,"shop/login.html")
+
+      
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+   -- urls.py,
+
+"""
+URL configuration for Ecomm_Project project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.0/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path
+from shop import views 
+
+urlpatterns = [
+    path('',views.home, name ='home'),
+    path('register',views.register, name ='register'),
+    path('login',views.login_page, name ='login'),
+    path('logout',views.logout_page, name ='logout'),
+    path('cart',views.cart_page, name ='cart'),
+    path('remove_cart/<str:cid>',views.remove_cart,name="remove_cart"),
+    path('collections',views.collections, name ='collections'),
+    path('collections/<str:name>',views.collectionsview, name ='collections'),
+    path('collections/<str:cname>/<str:pname>',views.product_details, name ='product_details'),
+    path('addtocart',views.add_to_cart, name ='addtocart'),
+    
+]
+
+    -- templates/shop/cart.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Cart</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in cart %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    <td>{{ item.product_qty }}</td>
+                    <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+                    <td><a href="{% url 'remove_cart' item.id %}"  onclick="return confirm('Are you sure? to Remove')"  class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Remove</a></td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td colspan="2"><b>Total Amount</b></td>
+                <td id="net">0</td>
+            </tr>
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    const nodes = document.querySelectorAll('.amt')
+    const arr = Array.from(nodes)
+    const res = arr.reduce((acc,curr) => {
+        return acc+= Number(curr.textContent)
+    },0);
+    document.getElementById('net').innerHTML = "Rs. " + res;
+</script>
+
+
+{% endblock content%}
+
+    
+
+
+113. add favourite page.
+    -- Goto inc/navbar.html file,
+    -- copy the cart a tag and paste it below with changes of url 'cart' to 'fav', font awesome 'cart' to 'heart' and content 'Cart' to 'Favourite'
+    a class="nav-link" href="{% url 'fav' %}"><i class="fa fa-shopping-heart"></i>Favourite</a>
+    
+    --inc/navbar.html file,
+
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"> <i class ="fa fa-cart-plus"></i>BuySpot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="navbar-nav ms-auto">
+          
+          <a class="nav-link" aria-current="page" href="{% url 'home' %}"><i class="fa fa-home"></i>Home</a>
+
+          {% if request.user.is_authenticated %}
+            <a class="nav-link" aria-current="page" href="#"><i class="fa fa-user"></i>{{request.user}}</a>
+            <a class="nav-link" aria-current="page" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i>Logout</a>
+
+          {% else %}
+          
+            <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in"></i>Login</a>
+            <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-users"></i>Register</a>
+
+          {% endif %}
+            <a class="nav-link" href="{% url 'collections' %}"><i class="fa fa-cubes"></i>Collections</a>
+            <a class="nav-link" href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i>Cart</a>
+            <a class="nav-link" href="{% url 'fav' %}"><i class="fa fa-shopping-heart"></i>Favourite</a>
+
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  114. Add Urls for favourite page on shop/urls.py,
+    -- goto shop/urls.py and add path
+    path('fav',views.fav_page, name ='fav'),
+
+    -- next goto views.py file,
+    -- craete function with the name of  fav_page.
+    def fav_page(request):
+        pass
+    -- next copy and paste add_to_page function  content and paste it on fav_page function.
+
+    -- views.py file,
+
+from django.shortcuts import render, redirect
+from shop.models import Category, Product, Cart
+from django.contrib import messages
+from django.http import HttpResponse,JsonResponse
+from shop.form import CustomUserForm
+from django.contrib.auth import authenticate,login,logout
+import json
+
+# Create your views here.
+def home(request):
+    products = Product.objects.filter(Trending=1)
+    return render(request, 'shop/index.html',{'products': products})
+
+def fav_page(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+def remove_cart(request,cid):
+  cartitem=Cart.objects.get(id=cid)
+  cartitem.delete()
+  return redirect("/cart")
+
+def cart_page(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter( user = request.user)
+        return render(request, 'shop/cart.html',{'cart': cart})
+    else:
+        return redirect('home')
+
+
+def add_to_cart(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+
+def logout_page(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.success(request, "Logged Out Successfully")
+    return redirect('home')
+
+
+def login_page(request):
+  if request.user.is_authenticated:
+    return redirect('home')
+  else:
+    if request.method=='POST':
+      name=request.POST.get('username')
+      pwd=request.POST.get('password')
+      user=authenticate(request,username=name,password=pwd)
+      if user is not None:
+        login(request,user)
+        messages.success(request,"Logged in Successfully")
+        return redirect("/")
+      else:
+        messages.error(request,"Invalid User Name or Password")
+        return redirect("/login")
+    return render(request,"shop/login.html")
+
+      
+def register(request):
+    form = CustomUserForm()
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Registration Success, You can Login Now...!😃")
+            return redirect('login')
+
+    return render(request, 'shop/register.html', {'form':form})
+
+def collections(request):
+    category = Category.objects.filter(status=0)
+    return render(request, 'shop/collections.html', {'category': category})
+
+def collectionsview(request, name):
+    if Category.objects.filter(name=name, status=0).exists():
+        products = Product.objects.filter(category__name=name)  # Changed to lowercase
+        return render(request, 'shop/products/index.html', {'products': products, "category_name":name})
+    else:
+        messages.warning(request, "No Such Category Found")
+        return redirect('collections')
+
+def product_details(request,cname,pname):
+    if(Category.objects.filter(name=cname,status=0)):
+        if(Product.objects.filter(name=pname,status=0)):
+            product = Product.objects.filter(name=pname,status=0).first()
+            return render(request,'shop/products/product_details.html',{'product':product})
+        else:
+            messages.warning(request, "No Such Product")
+            return redirect ('collections')
+    else:
+        messages.warning(request, "No Such Category")
+        return redirect ('collections')
+
+115. Goto product_details.html file.
+    -- add id="btnFav" to button having class "btn btn-danger".
+    <button class="btn btn-danger" id="btnFav" ><i class="fa fa-heart"></i></button>
+    -- get that "btnFav" in script tag using getElementById and store it on const btnFav variable.
+     const btnFav = document.getElementById("btnFav");
+    -- next, copy the btnCart addEventListener and paste it below.
+    -- change btnCart to btnFav.
+    -- create one table on model
+    -- goto models.py and create one calss with name Favourite.
+    -- create user variable and assign it as ForeignKey.
+    -- create product variable and assign it as ForeignKey.
+    -- reate created_at variable and store current DateTimeField.
+    class Favourite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    --  py manage.py makemigrations
+    --  py manage.py migrate
+    -- next, continue on btnFav addEventListener,
+    -- remove all conditions and qty.
+    -- pid is enough
+            btnFav.addEventListener("click", function() {
+     
+        let postObj = { 
+         'pid': pid.value
+        }
+        console.log(postObj);
+        fetch("/fav",{
+        method: 'POST',
+        credentials: 'same-origin',
+        headers:{
+           'Accept': 'application/json',
+           'X-Requested-With': 'XMLHttpRequest',
+           'X-CSRFToken': '{{ csrf_token }}',
+       },
+       body: JSON.stringify(postObj)
+     }).then(response => {
+         return response.json();
+     }).then(data => {
+         //console.log(data);
+       alert(data['status']);
+     });
+   
+});
+
+116. Goto Views.py
+    -- remove product_qty = (data['product_qty']).
+    -- select def fav_page(request): 
+    -- copy this, Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty).
+    and paste on just below product_id variable
+    -- remove following,
+    product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Cart.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in cart'}, status=200)
+                    else:
+                        if product_status.quantity>=product_qty:
+                            Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+                            return JsonResponse({'status': 'Product Added to Cart successfully'}, status=200)
+                        else:
+                            return JsonResponse({'status': 'Product Stock out of Market'}, status=200)
+    -- in else part replace change 'status': 'Log in to Add Cart' to 'status': 'Log in to Add Favourite'
+    return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    -- remove product_qty = product_qty from this line , Cart.objects.create(user= request.user,product_id = product_id, product_qty = product_qty)
+    -- change Cart to Favourite.
+    Favourite.objects.create(user= request.user,product_id = product_id)
+    -- just below of Favourite.objects.create(user= request.user,product_id = product_id) line, add one json respose.
+    return JsonResponse({'status': 'Product Added to Favourite'}, status=200)
+
+    
+def fav_page(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                Favourite.objects.create(user= request.user,product_id = product_id)
+                return JsonResponse({'status': 'Product Added to Favourite'}, status=200)
+                
+
+               
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Cart'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+117. Now we can add product after checking that, the product is already available or not in Favourite,
+    -- in def fav_page(request): function, below of product_id, add product_status variable.
+    product_status = Product.objects.get(id = product_id )
+    -- if product_status: (if product available in shop)
+    -- if Favourite.objects.filter(user= request.user,product_id = product_id): (if that product already exists in Favourite)
+    -- return JsonResponse({'status': 'Product Already in Favourite'}, status=200)
+    -- else:
+            Favourite.objects.create(user= request.user,product_id = product_id)
+            return JsonResponse({'status': 'Product Added to Favourite'}, status=200)
+
+def fav_page(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.user.is_authenticated:
+            try:
+                data = json.load(request)
+                product_qty = (data['product_qty'])
+                product_id = (data['pid'])
+                # print(request.user.id)
+                product_status = Product.objects.get(id = product_id )
+                if product_status:
+                    if Favourite.objects.filter(user= request.user,product_id = product_id):
+                        return JsonResponse({'status': 'Product Already in Favourite'}, status=200)
+                    else:
+                        Favourite.objects.create(user= request.user,product_id = product_id)
+                        return JsonResponse({'status': 'Product Added to Favourite'}, status=200)
+                         
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'Invalid JSON data'}, status=400)
+        else:
+            return JsonResponse({'status': 'Log in to Add Favourite'}, status=200)
+    else:
+        return JsonResponse({'status': 'Invalid Access'}, status=200)
+
+
+-- Everything working on console perfectly.
+
+
+118. next, create one .html file to view Favourite.
+    -- goto shop/urls.py file and add one path for favviewpage.
+    path('favviewpage',views.favviewpage, name ='favviewpage'),
+    -- next create one view for favviewpage.
+    -- goto views.py and create one fubction with name favviewpage
+    -- copy the cart_page function and paste it.
+    -- change function name cart_page to favviewpage.
+    -- replace cart by equivalent fav.
+def cart_page(request):
+    if request.user.is_authenticated:
+        fav = Favourite.objects.filter( user = request.user)
+        return render(request, 'shop/fav.html',{'fav': fav})
+    else:
+        return redirect('home')
+
+        -- next, create fav.html file on templates/shop/ folder.
+        -- copy the content from cart.html and paste it on fav.html 
+        -- in fav.html, remove script tag content completely.
+        -- remove Total Amount tr tag content. which below {% endfor %}
+        -- remove <td>{{ item.product_qty }}</td>
+        -- remove <td class="amt">{{ item.total_cost | stringformat:'d' }}</td>
+        -- replace cart by fav in loop
+        {% for item in fav %}
+
+-- fav.html file,
+
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Cart | BuySpot
+{% endblock title %}
+
+{% block content%}
+
+
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">Favourite</h4>
+                <hr style="border-color: b8bfc2;">
+                
+            </div>
+
+
+            <table class="">
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Remove</th>
+                </tr>
+            
+            {% for item in fav %}
+                <tr>
+                    <td><img src="{{ item.product.product_image.url }}" height="75px" width="50px"  alt="{{ item.product.name }}"></td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.selling_price | stringformat:'d'}}</td>
+                    
+                    
+                    <td><a href="{% url 'remove_cart' item.id %}"  onclick="return confirm('Are you sure? to Remove')"  class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Remove</a></td>
+                </tr>
+            {% endfor %}
+            
+        
+        </table>
+            
+        </div>
+
+    </div>
+
+</section>
+
+
+
+{% endblock content%}
+
+    
+
+119. Next goto inc/navbar.html page.
+    -- change "{% url 'fav' %}" to "{% url 'favviewpage' %}"
+    <a class="nav-link" href="{% url 'favviewpage' %}"><i class="fa fa-heart"></i> Favourite</a>
+    -- goto fav.html remove <th>Quantity</th> and <th>Amount</th>
+    -- next, change remove_cart to remove_fav in a tag href at fav.html file.
+    <td><a href="{% url 'remove_fav' item.id %}"  onclick="return confirm('Are you sure? to Remove')"  class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Remove</a></td>
+    -- goto shop/urls.py and create one path for remove_fav
+    ath('remove_fav/<str:cid>',views.remove_fav,name="remove_fav"),
+    -- goto views.py and create one function with name remove_fav
+    -- copy remove_cart function and paste it.
+
+def remove_fav(request,cid):
+  item = Favourite.objects.get(id=cid)
+  item.delete()
+  return redirect("favviewpage")
+
+
+                    
+
+
+
+
+
+
+    
+
+
+
+
+
+
+        
+
+
+
+
+      
+
+   
+
+
+
+
+
+
+  
+
+
+
+
+
+                            
+                        
+
+
+
+
+
 
    
 
